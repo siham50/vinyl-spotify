@@ -3,24 +3,23 @@ import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import { usePlayer } from "@/store/playerStore";
 import { NowPlayingScreen } from "./Screen";
 
-// Standard skeuomorphic palette with diagonal depth
-export const IPOD_COLORS: Record<string, { body: string; wheel: string; edge: string; tlHi: string; brSh: string }> = {
-  silver: { body: "linear-gradient(135deg,#fafaf6 0%,#e2e2dc 55%,#bcbcb6 100%)", wheel: "#f4f4ef", edge: "#9a9a96", tlHi: "rgba(255,255,255,0.85)", brSh: "rgba(0,0,0,0.45)" },
-  black: { body: "linear-gradient(135deg,#3a3a3a 0%,#1a1a1a 55%,#000 100%)", wheel: "#1a1a1a", edge: "#000", tlHi: "rgba(255,255,255,0.25)", brSh: "rgba(0,0,0,0.7)" },
-  rose: { body: "linear-gradient(135deg,#ffe4ec 0%,#f4a5bb 55%,#c97a92 100%)", wheel: "#ffe2ec", edge: "#c97a92", tlHi: "rgba(255,255,255,0.8)", brSh: "rgba(120,30,55,0.45)" },
-  red: { body: "linear-gradient(135deg,#ffb0b0 0%,#df3a3a 55%,#8a1414 100%)", wheel: "#ffd6d6", edge: "#8a1414", tlHi: "rgba(255,255,255,0.7)", brSh: "rgba(70,0,0,0.55)" },
-  purple: { body: "linear-gradient(135deg,#e6d9ff 0%,#9a6dff 55%,#5a36b8 100%)", wheel: "#e6d9ff", edge: "#5a36b8", tlHi: "rgba(255,255,255,0.8)", brSh: "rgba(35,0,90,0.5)" },
-  burgundy: { body: "linear-gradient(135deg,#a04050 0%,#6b1e2e 55%,#3a0d18 100%)", wheel: "#7e2638", edge: "#3a0d18", tlHi: "rgba(255,255,255,0.35)", brSh: "rgba(0,0,0,0.6)" },
-  lavenderVeil: { body: "linear-gradient(135deg,#ffffff 0%,#f7d9fc 55%,#d4a8db 100%)", wheel: "#fbeafe", edge: "#b985c2", tlHi: "rgba(255,255,255,0.9)", brSh: "rgba(120,60,130,0.35)" },
-  sunflowerGold: { body: "linear-gradient(135deg,#ffe9a8 0%,#fab940 55%,#a87014 100%)", wheel: "#ffe2a0", edge: "#a87014", tlHi: "rgba(255,255,255,0.85)", brSh: "rgba(80,40,0,0.5)" },
-  hotRose: { body: "linear-gradient(135deg,#ff7aa3 0%,#c32868 55%,#6e1238 100%)", wheel: "#e54a82", edge: "#6e1238", tlHi: "rgba(255,255,255,0.55)", brSh: "rgba(60,0,30,0.6)" },
-  nightBordeaux: { body: "linear-gradient(135deg,#8a3046 0%,#5b1c2e 55%,#2a0a14 100%)", wheel: "#6e2438", edge: "#2a0a14", tlHi: "rgba(255,255,255,0.3)", brSh: "rgba(0,0,0,0.65)" },
-  darkAmethyst: { body: "linear-gradient(135deg,#5a3a9e 0%,#25104d 55%,#0e0420 100%)", wheel: "#321a64", edge: "#0e0420", tlHi: "rgba(255,255,255,0.3)", brSh: "rgba(0,0,0,0.7)" },
-  honeydew: { body: "linear-gradient(135deg,#ffffff 0%,#f6ffe9 55%,#cfdfb6 100%)", wheel: "#f8ffec", edge: "#a8c084", tlHi: "rgba(255,255,255,0.95)", brSh: "rgba(60,80,30,0.3)" },
-  vanillaCustard: { body: "linear-gradient(135deg,#fff5d0 0%,#f2e0a4 55%,#bfa75e 100%)", wheel: "#fbeec0", edge: "#bfa75e", tlHi: "rgba(255,255,255,0.85)", brSh: "rgba(90,70,20,0.4)" },
-  periwinkle: { body: "linear-gradient(135deg,#eae6ff 0%,#cac5e5 55%,#8e87b8 100%)", wheel: "#ddd8f0", edge: "#8e87b8", tlHi: "rgba(255,255,255,0.85)", brSh: "rgba(40,30,90,0.4)" },
-  amethyst: { body: "linear-gradient(135deg,#d870da 0%,#a230a4 55%,#52114f 100%)", wheel: "#c050c2", edge: "#52114f", tlHi: "rgba(255,255,255,0.5)", brSh: "rgba(40,0,40,0.6)" },
-  darkUltramarine: { body: "linear-gradient(135deg,#5a3ad0 0%,#290087 55%,#0c002e 100%)", wheel: "#3a1aa0", edge: "#0c002e", tlHi: "rgba(255,255,255,0.3)", brSh: "rgba(0,0,20,0.7)" },
+export const IPOD_COLORS: Record<string, { body: string; wheel: string; accent: string; shadow: string; logo: string }> = {
+  silver: { body: "#C8C8C8", wheel: "#B0B0B0", accent: "#E8E8E8", shadow: "rgba(0,0,0,0.25)", logo: "#1a1a1a" },
+  black:  { body: "#1a1a1a", wheel: "#111111", accent: "#2a2a2a", shadow: "rgba(0,0,0,0.8)", logo: "#ffffff" },
+  pink:   { body: "#F4A7C3", wheel: "#E8849F", accent: "#FCC8D8", shadow: "rgba(0,0,0,0.2)", logo: "#1a1a1a" },
+  blue:   { body: "#4A90D9", wheel: "#2E6DB4", accent: "#6AAEE8", shadow: "rgba(0,0,0,0.3)", logo: "#ffffff" },
+  red:    { body: "#C0392B", wheel: "#96281B", accent: "#E74C3C", shadow: "rgba(0,0,0,0.4)", logo: "#ffffff" },
+  purple: { body: "#7D3C98", wheel: "#6C3483", accent: "#9B59B6", shadow: "rgba(0,0,0,0.4)", logo: "#ffffff" },
+  burgundy: { body: "#6A1B31", wheel: "#4B1323", accent: "#8B2340", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
+  ocean: { body: "linear-gradient(135deg, #F2FFF6 0%, #CAFFDE 25%, #25C5E9 50%, #238689 75%, #021225 100%)", wheel: "#238689", accent: "#CAFFDE", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
+  amethystTeal: { body: "linear-gradient(135deg, #FFEBED 0%, #F6B6B7 25%, #A6C9B6 50%, #3E828E 75%, #27153D 100%)", wheel: "#3E828E", accent: "#F6B6B7", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
+  berrySilk: { body: "linear-gradient(135deg, #F5E9E2 0%, #E3B5A4 25%, #D44D5C 50%, #773344 75%, #160029 100%)", wheel: "#773344", accent: "#E3B5A4", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
+  dustyRhino: { body: "linear-gradient(135deg, #F4DAD4 0%, #DD8C96 50%, #2E4060 100%)", wheel: "#2E4060", accent: "#DD8C96", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
+  mochaRose: { body: "linear-gradient(135deg, #F4DAD4 0%, #BF9292 50%, #7C5A5A 100%)", wheel: "#7C5A5A", accent: "#F4DAD4", shadow: "rgba(0,0,0,0.4)", logo: "#ffffff" },
+  icyViolet: { body: "linear-gradient(135deg, #EDEDE8 0%, #C5F9FC 25%, #5320C0 50%, #4F032E 75%, #1D0C13 100%)", wheel: "#5320C0", accent: "#C5F9FC", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
+  sapphireBlush: { body: "linear-gradient(135deg, #FFF0E9 0%, #F2A4A5 25%, #E5C5C6 50%, #3059A4 75%, #006E87 100%)", wheel: "#3059A4", accent: "#F2A4A5", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
+  peachAmethyst: { body: "linear-gradient(135deg, #FFE9E9 0%, #FFF1D2 25%, #D18A75 50%, #A33E7E 75%, #260C45 100%)", wheel: "#A33E7E", accent: "#FFF1D2", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
+  roseSteel: { body: "linear-gradient(135deg, #FFDBDA 0%, #DB7F8E 25%, #D5C5C8 50%, #9DA3A4 75%, #604D53 100%)", wheel: "#9DA3A4", accent: "#DB7F8E", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
 };
 
 // Flat illustrated "icon" style — like a small flat app/sticker tile
@@ -115,12 +114,13 @@ export default function IPod() {
         width: 280, height: 470, borderRadius: 32,
         background: std!.body,
         boxShadow: [
-          `inset 2px 2px 0 ${std!.tlHi}`,
-          `inset -3px -3px 0 ${std!.brSh}`,
+          `inset 2px 2px 0 ${std!.accent}`,
+          `inset -3px -3px 0 ${std!.shadow}`,
           `inset 0 1px 1px rgba(255,255,255,0.4)`,
           `0 30px 60px -20px rgba(0,0,0,0.75)`,
           `0 0 0 1px rgba(0,0,0,0.25)`,
         ].join(", "),
+        transition: "all 400ms ease",
       }}
     >
       {/* Subtle diagonal sheen */}
@@ -131,7 +131,7 @@ export default function IPod() {
         className="absolute left-1/2 -translate-x-1/2 overflow-hidden"
         style={{
           top: 22, width: 232, height: 200, borderRadius: 6,
-          background: "#000",
+          backgroundColor: "#1a1a1a",
           boxShadow: "inset 2px 2px 4px rgba(0,0,0,0.9), inset -2px -2px 4px rgba(0,0,0,0.9), 0 0 0 2px rgba(0,0,0,0.5), 0 0 0 4px rgba(255,255,255,0.35)",
         }}
       >
@@ -143,8 +143,9 @@ export default function IPod() {
         className="absolute left-1/2 -translate-x-1/2"
         style={{
           bottom: 32, width: 200, height: 200, borderRadius: "50%",
-          background: `radial-gradient(circle at 35% 30%, #ffffff 0%, ${std!.wheel} 45%, ${std!.edge} 130%)`,
-          boxShadow: "inset 3px 3px 5px rgba(255,255,255,0.75), inset -3px -3px 6px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.18), 0 4px 8px rgba(0,0,0,0.25)",
+          background: std!.wheel,
+          boxShadow: `inset 3px 3px 5px ${std!.accent}, inset -3px -3px 6px ${std!.shadow}, 0 0 0 1px rgba(0,0,0,0.18), 0 4px 8px rgba(0,0,0,0.25)`,
+          transition: "all 400ms ease",
         }}
       >
         <button onClick={() => { }} className="wheel-glow absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 flex items-start justify-center pt-2 text-[10px] font-semibold text-black/70 rounded-[20px]">MENU</button>
@@ -160,10 +161,19 @@ export default function IPod() {
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
             width: 78, height: 78, borderRadius: "50%",
-            background: "radial-gradient(circle at 35% 30%, #ffffff 0%, #ededed 55%, #b8b8b8 100%)",
-            boxShadow: "inset 2px 2px 3px rgba(255,255,255,0.95), inset -2px -2px 4px rgba(0,0,0,0.2), 0 3px 6px rgba(0,0,0,0.25)",
+            background: std!.body,
+            boxShadow: `inset 2px 2px 3px ${std!.accent}, inset -2px -2px 4px ${std!.shadow}, 0 3px 6px rgba(0,0,0,0.25)`,
+            transition: "all 400ms ease",
           }}
         />
+      </div>
+
+      {/* VinyPod Logo */}
+      <div 
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 font-display font-bold text-[10px] tracking-widest opacity-80"
+        style={{ color: std!.logo, transition: "all 400ms ease" }}
+      >
+        VinyPod
       </div>
     </motion.div>
   );
