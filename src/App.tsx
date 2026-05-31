@@ -12,7 +12,7 @@ export default function App() {
   const { view: viewMode } = usePlayer();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] w-full relative">
+    <div className="min-h-screen bg-[#0a0a0a] w-full relative flex items-center justify-center overflow-hidden">
       {viewMode === 'ipod' ? <IPod /> : <Vinyl />}
       <FloatingNav />
     </div>
