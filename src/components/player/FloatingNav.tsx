@@ -88,7 +88,7 @@ export default function FloatingNav() {
                 <button key={s} onClick={() => setVinyl({ style: s })}
                   className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded transition"
                   style={{ color: vinyl.style === s ? "#fff" : "rgba(255,255,255,0.4)" }}>
-                  {s === "standard" ? "STD" : s === "pixel" ? "PIX" : s === "8bit" ? "8BT" : "RTR"}
+                  {s === "standard" ? "STD" : s === "pixel" ? "PIX" : s === "8bit" ? "8BT" : "COOL"}
                 </button>
               ))}
             </div>

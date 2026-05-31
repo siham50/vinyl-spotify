@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { motion, useAnimation } from "framer-motion";
+import { useEffect } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { usePlayer } from "@/store/playerStore";
 import { songs, fmt } from "@/lib/songs";
@@ -13,7 +14,7 @@ export const VINYL_COLORS: Record<
   forest: { base: "#0c2818", groove: "#1c4028", rim: "#001008", label: "#e8dfb8" },
   pink: { base: "#d97aa8", groove: "#e890b8", rim: "#a04880", label: "#fff0e0" },
   purple: { base: "#3a1a5a", groove: "#5a2a7a", rim: "#1a0840", label: "#ecd6ff" },
-  gold: { base: "#8a6818", groove: "#a88828", rim: "#5a4008", label: "#fff4c8" },
+  coralOrange: { base: "#FF7F50", groove: "#FF9E7A", rim: "#CC4A22", label: "#FFF0E6" },
   pearl: { base: "#e8e4d8", groove: "#f4f0e4", rim: "#a8a498", label: "#9b6a3a" },
   lavenderVeil: { base: "#f7d9fc", groove: "#e6c2ee", rim: "#b985c2", label: "#5b1c5e" },
   sunflowerGold: { base: "#fab940", groove: "#d99820", rim: "#7a5408", label: "#3a2400" },
@@ -25,6 +26,15 @@ export const VINYL_COLORS: Record<
   periwinkle: { base: "#cac5e5", groove: "#a8a3c8", rim: "#6a6298", label: "#1a0a5a" },
   amethyst: { base: "#a230a4", groove: "#c050c2", rim: "#52114f", label: "#fbeef9" },
   darkUltramarine: { base: "#290087", groove: "#3e1aa0", rim: "#0c002e", label: "#cac5e5" },
+  ocean: { base: "#25C5E9", groove: "#CAFFDE", rim: "#021225", label: "#F2FFF6" },
+  amethystTeal: { base: "#3E828E", groove: "#F6B6B7", rim: "#27153D", label: "#FFEBED" },
+  berrySilk: { base: "#D44D5C", groove: "#E3B5A4", rim: "#160029", label: "#F5E9E2" },
+  dustyRhino: { base: "#DD8C96", groove: "#F4DAD4", rim: "#2E4060", label: "#F4DAD4" },
+  mochaRose: { base: "#BF9292", groove: "#F4DAD4", rim: "#7C5A5A", label: "#F4DAD4" },
+  icyViolet: { base: "#5320C0", groove: "#C5F9FC", rim: "#1D0C13", label: "#EDEDE8" },
+  sapphireBlush: { base: "#3059A4", groove: "#F2A4A5", rim: "#006E87", label: "#FFF0E9" },
+  peachAmethyst: { base: "#D18A75", groove: "#FFF1D2", rim: "#260C45", label: "#FFE9E9" },
+  roseSteel: { base: "#9DA3A4", groove: "#DB7F8E", rim: "#604D53", label: "#FFDBDA" },
 };
 
 // Flat illustrated icon palette for vinyls
@@ -38,7 +48,7 @@ const ICON_COLORS: Record<
   forest: { tile: "#14532d", ring: "#16a34a", accent: "#bbf7d0", label: "#dcfce7", ink: "#052e16" },
   pink: { tile: "#db2777", ring: "#ec4899", accent: "#fce7f3", label: "#fbcfe8", ink: "#500724" },
   purple: { tile: "#6d28d9", ring: "#8b5cf6", accent: "#ddd6fe", label: "#ede9fe", ink: "#2e1065" },
-  gold: { tile: "#b45309", ring: "#f59e0b", accent: "#fef3c7", label: "#fde68a", ink: "#451a03" },
+  coralOrange: { tile: "#FF7F50", ring: "#CC4A22", accent: "#FF9E7A", label: "#FFF0E6", ink: "#CC4A22" },
   pearl: { tile: "#fafaf9", ring: "#d6d3d1", accent: "#a8a29e", label: "#f5f5f4", ink: "#44403c" },
   lavenderVeil: { tile: "#f7d9fc", ring: "#d4a8db", accent: "#b985c2", label: "#fbeafe", ink: "#5b1c5e" },
   sunflowerGold: { tile: "#fab940", ring: "#d99820", accent: "#fff0c8", label: "#ffe9a8", ink: "#5b3a08" },
@@ -50,6 +60,15 @@ const ICON_COLORS: Record<
   periwinkle: { tile: "#cac5e5", ring: "#8e87b8", accent: "#eae6ff", label: "#ddd8f0", ink: "#1a0a5a" },
   amethyst: { tile: "#a230a4", ring: "#c050c2", accent: "#f7d9fc", label: "#fbeef9", ink: "#3a0840" },
   darkUltramarine: { tile: "#290087", ring: "#5a3ad0", accent: "#cac5e5", label: "#eae6ff", ink: "#08001a" },
+  ocean: { tile: "#25C5E9", ring: "#021225", accent: "#CAFFDE", label: "#F2FFF6", ink: "#021225" },
+  amethystTeal: { tile: "#3E828E", ring: "#27153D", accent: "#F6B6B7", label: "#FFEBED", ink: "#27153D" },
+  berrySilk: { tile: "#D44D5C", ring: "#160029", accent: "#E3B5A4", label: "#F5E9E2", ink: "#160029" },
+  dustyRhino: { tile: "#DD8C96", ring: "#2E4060", accent: "#F4DAD4", label: "#F4DAD4", ink: "#2E4060" },
+  mochaRose: { tile: "#BF9292", ring: "#7C5A5A", accent: "#F4DAD4", label: "#F4DAD4", ink: "#7C5A5A" },
+  icyViolet: { tile: "#5320C0", ring: "#1D0C13", accent: "#C5F9FC", label: "#EDEDE8", ink: "#1D0C13" },
+  sapphireBlush: { tile: "#3059A4", ring: "#006E87", accent: "#F2A4A5", label: "#FFF0E9", ink: "#006E87" },
+  peachAmethyst: { tile: "#D18A75", ring: "#260C45", accent: "#FFF1D2", label: "#FFE9E9", ink: "#260C45" },
+  roseSteel: { tile: "#9DA3A4", ring: "#604D53", accent: "#DB7F8E", label: "#FFDBDA", ink: "#604D53" },
 };
 
 const HEART_PATH =
@@ -69,6 +88,19 @@ export default function Vinyl() {
   const isRetro = vinyl.style === "retro";
 
   const grooves = Array.from({ length: is8bit ? 8 : 28 }, (_, i) => 60 + i * 6.5);
+
+  // Shared animation controls — guarantees true infinite spin
+  const spinControls = useAnimation();
+  useEffect(() => {
+    if (playing) {
+      spinControls.start({
+        rotate: 360,
+        transition: { repeat: Infinity, ease: "linear", duration: 6 },
+      });
+    } else {
+      spinControls.stop();
+    }
+  }, [playing, spinControls]);
 
   // Tonearm position adjusts to vinyl shape so the stylus sits on the playable surface
   const armPos = isHeart
@@ -134,74 +166,41 @@ export default function Vinyl() {
 
         {/* PIXEL/ICON style — flat illustrated tile */}
         {isPixel ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div
-              animate={{ rotate: playing ? 360 : 0 }}
-              transition={
-                playing
-                  ? { repeat: Infinity, ease: "linear", duration: 6 }
-                  : { duration: 1.2, ease: "easeOut" }
-              }
-              className="w-full h-full"
+          <motion.div
+            className="absolute inset-0"
+            animate={spinControls}
+            style={{ originX: "50%", originY: "50%" }}
+          >
+            <svg
+              viewBox="0 0 512 512"
+              className="w-full h-full drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]"
             >
-              <svg
-                viewBox="0 0 512 512"
-                className="w-full h-full drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]"
-              >
-                {isHeart ? (
-                  <>
-                    <path d={HEART_PATH} fill={icon.tile} />
-                    <path d={HEART_PATH} fill="none" stroke={icon.ring} strokeWidth="14" />
-                    <circle cx="256" cy="256" r="110" fill={icon.accent} />
-                    <circle cx="256" cy="256" r="55" fill={icon.label} />
-                    <circle cx="256" cy="256" r="10" fill={icon.ink} />
-                  </>
-                ) : (
-                  <>
-                    <circle cx="256" cy="256" r="240" fill={icon.tile} />
-                    <circle
-                      cx="256"
-                      cy="256"
-                      r="240"
-                      fill="none"
-                      stroke={icon.ring}
-                      strokeWidth="16"
-                    />
-                    <circle
-                      cx="256"
-                      cy="256"
-                      r="180"
-                      fill="none"
-                      stroke={icon.ring}
-                      strokeWidth="6"
-                      opacity="0.4"
-                    />
-                    <circle
-                      cx="256"
-                      cy="256"
-                      r="140"
-                      fill="none"
-                      stroke={icon.ring}
-                      strokeWidth="6"
-                      opacity="0.3"
-                    />
-                    <circle cx="256" cy="256" r="100" fill={icon.accent} />
-                    <circle cx="256" cy="256" r="55" fill={icon.label} />
-                    <circle cx="256" cy="256" r="10" fill={icon.ink} />
-                  </>
-                )}
-              </svg>
-            </motion.div>
-          </div>
+              {isHeart ? (
+                <>
+                  <path d={HEART_PATH} fill={icon.tile} />
+                  <path d={HEART_PATH} fill="none" stroke={icon.ring} strokeWidth="14" />
+                  <circle cx="256" cy="256" r="110" fill={icon.accent} />
+                  <circle cx="256" cy="256" r="55" fill={icon.label} />
+                  <circle cx="256" cy="256" r="10" fill={icon.ink} />
+                </>
+              ) : (
+                <>
+                  <circle cx="256" cy="256" r="240" fill={icon.tile} />
+                  <circle cx="256" cy="256" r="240" fill="none" stroke={icon.ring} strokeWidth="16" />
+                  <circle cx="256" cy="256" r="180" fill="none" stroke={icon.ring} strokeWidth="6" opacity="0.4" />
+                  <circle cx="256" cy="256" r="140" fill="none" stroke={icon.ring} strokeWidth="6" opacity="0.3" />
+                  <circle cx="256" cy="256" r="100" fill={icon.accent} />
+                  <circle cx="256" cy="256" r="55" fill={icon.label} />
+                  <circle cx="256" cy="256" r="10" fill={icon.ink} />
+                </>
+              )}
+            </svg>
+          </motion.div>
         ) : (
           <motion.div
             className="absolute inset-0"
-            animate={{ rotate: playing ? 360 : 0 }}
-            transition={
-              playing
-                ? { repeat: Infinity, ease: "linear", duration: 6 }
-                : { duration: 1.5, ease: "easeOut" }
-            }
+            animate={spinControls}
+            style={{ originX: "50%", originY: "50%" }}
           >
             <svg
               viewBox="0 0 512 512"
@@ -216,11 +215,40 @@ export default function Vinyl() {
                   <stop offset="60%" stopColor={palette.base} />
                   <stop offset="100%" stopColor={palette.rim} />
                 </radialGradient>
-                <radialGradient id="retro-grad" cx="35%" cy="28%" r="85%">
-                  <stop offset="0%" stopColor={palette.groove} stopOpacity="0.9" />
-                  <stop offset="55%" stopColor={palette.base} />
-                  <stop offset="100%" stopColor={palette.rim} />
+                {/* Retro "Cool" glassy liquid-metal base */}
+                <radialGradient id="retro-grad" cx="38%" cy="30%" r="75%">
+                  <stop offset="0%" stopColor={palette.groove} stopOpacity="1" />
+                  <stop offset="40%" stopColor={palette.base} stopOpacity="0.95" />
+                  <stop offset="100%" stopColor={palette.rim} stopOpacity="1" />
                 </radialGradient>
+                {/* Glassy edge sheen — bright left chrome sweep */}
+                <linearGradient id="glass-edge" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.92)" />
+                  <stop offset="6%" stopColor="rgba(255,255,255,0.35)" />
+                  <stop offset="30%" stopColor="rgba(255,255,255,0.05)" />
+                  <stop offset="55%" stopColor="rgba(255,255,255,0)" />
+                  <stop offset="88%" stopColor="rgba(200,210,255,0.12)" />
+                  <stop offset="100%" stopColor="rgba(180,190,255,0.55)" />
+                </linearGradient>
+                {/* Glassy central warm bloom */}
+                <radialGradient id="glass-bloom" cx="40%" cy="32%" r="50%">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.75)" />
+                  <stop offset="30%" stopColor="rgba(255,240,220,0.25)" />
+                  <stop offset="70%" stopColor="rgba(255,255,255,0.04)" />
+                  <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                </radialGradient>
+                {/* Glassy lower shadow */}
+                <radialGradient id="glass-shadow" cx="50%" cy="88%" r="55%">
+                  <stop offset="0%" stopColor="rgba(0,0,0,0.55)" />
+                  <stop offset="60%" stopColor="rgba(0,0,0,0.15)" />
+                  <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+                </radialGradient>
+                {/* Secondary diagonal gloss streak */}
+                <linearGradient id="glass-streak" x1="0.1" y1="0" x2="0.6" y2="1">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.6)" />
+                  <stop offset="20%" stopColor="rgba(255,255,255,0.1)" />
+                  <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                </linearGradient>
                 <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="1">
                   <stop offset="0%" stopColor="rgba(255,255,255,0.45)" />
                   <stop offset="35%" stopColor="rgba(255,255,255,0)" />
@@ -256,28 +284,45 @@ export default function Vinyl() {
                     />
                   ))}
 
-                {/* Retro: fine concentric rings + warm highlight */}
+                {/* Cool (retro): glassy liquid-metal layers */}
                 {isRetro && (
                   <>
-                    {Array.from({ length: 40 }, (_, i) => (
+                    {/* Subtle fine grooves beneath glass */}
+                    {Array.from({ length: 20 }, (_, i) => (
                       <circle
                         key={i}
                         cx="256"
                         cy="256"
-                        r={90 + i * 4}
+                        r={110 + i * 6}
                         fill="none"
-                        stroke="rgba(0,0,0,0.22)"
-                        strokeWidth="0.4"
+                        stroke="rgba(0,0,0,0.10)"
+                        strokeWidth="0.5"
                       />
                     ))}
-                    <circle
-                      cx="256"
-                      cy="256"
-                      r="248"
-                      fill="url(#sheen)"
-                      opacity="0.6"
-                      style={{ mixBlendMode: "screen" }}
-                    />
+                    {/* Primary left chrome edge sweep */}
+                    {isHeart
+                      ? <path d={HEART_PATH} fill="url(#glass-edge)" opacity="1" style={{ mixBlendMode: "screen" }} />
+                      : <circle cx="256" cy="256" r="250" fill="url(#glass-edge)" opacity="1" style={{ mixBlendMode: "screen" }} />}
+                    {/* Diagonal gloss streak — top-left slash */}
+                    {isHeart
+                      ? <path d={HEART_PATH} fill="url(#glass-streak)" opacity="0.9" style={{ mixBlendMode: "screen" }} />
+                      : <circle cx="256" cy="256" r="250" fill="url(#glass-streak)" opacity="0.9" style={{ mixBlendMode: "screen" }} />}
+                    {/* Central warm bloom */}
+                    {isHeart
+                      ? <path d={HEART_PATH} fill="url(#glass-bloom)" opacity="1" style={{ mixBlendMode: "screen" }} />
+                      : <circle cx="256" cy="256" r="250" fill="url(#glass-bloom)" opacity="1" style={{ mixBlendMode: "screen" }} />}
+                    {/* Bottom rim shadow */}
+                    {isHeart
+                      ? <path d={HEART_PATH} fill="url(#glass-shadow)" opacity="1" />
+                      : <circle cx="256" cy="256" r="250" fill="url(#glass-shadow)" opacity="1" />}
+                    {/* Outer chrome ring highlight */}
+                    {isHeart
+                      ? <path d={HEART_PATH} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="4" />
+                      : <circle cx="256" cy="256" r="249" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="4" />}
+                    {/* Inner chrome ring */}
+                    {isHeart
+                      ? <path d={HEART_PATH} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" />
+                      : <circle cx="256" cy="256" r="240" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" />}
                   </>
                 )}
 

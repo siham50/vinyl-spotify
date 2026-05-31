@@ -8,7 +8,6 @@ export const IPOD_COLORS: Record<string, { body: string; wheel: string; accent: 
   black:  { body: "#1a1a1a", wheel: "#111111", accent: "#2a2a2a", shadow: "rgba(0,0,0,0.8)", logo: "#ffffff" },
   pink:   { body: "#F4A7C3", wheel: "#E8849F", accent: "#FCC8D8", shadow: "rgba(0,0,0,0.2)", logo: "#1a1a1a" },
   blue:   { body: "#4A90D9", wheel: "#2E6DB4", accent: "#6AAEE8", shadow: "rgba(0,0,0,0.3)", logo: "#ffffff" },
-  red:    { body: "#C0392B", wheel: "#96281B", accent: "#E74C3C", shadow: "rgba(0,0,0,0.4)", logo: "#ffffff" },
   purple: { body: "#7D3C98", wheel: "#6C3483", accent: "#9B59B6", shadow: "rgba(0,0,0,0.4)", logo: "#ffffff" },
   burgundy: { body: "#6A1B31", wheel: "#4B1323", accent: "#8B2340", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
   ocean: { body: "linear-gradient(135deg, #F2FFF6 0%, #CAFFDE 25%, #25C5E9 50%, #238689 75%, #021225 100%)", wheel: "#238689", accent: "#CAFFDE", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
