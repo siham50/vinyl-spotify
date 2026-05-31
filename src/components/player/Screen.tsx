@@ -20,30 +20,108 @@ export function Equalizer({ color = "#fff", playing = true }: { color?: string; 
   );
 }
 
-export function NowPlayingScreen({ pixel = false }: { pixel?: boolean }) {
+// Pixel equalizer: 4 columns of 4x4px squares that animate up/down
+function PixelEqualizer({ color, glow, playing }: { color: string; glow: string; playing: boolean }) {
+  const heights = [3, 5, 4, 6]; // max pixel heights per column
+  return (
+    <div className="flex items-end gap-[3px]">
+      {heights.map((maxH, col) => (
+        <motion.div
+          key={col}
+          className="flex flex-col-reverse gap-[2px]"
+          animate={playing ? { scaleY: [0.4, 1, 0.6, 1, 0.3, 0.9, 1] } : { scaleY: 0.2 }}
+          transition={playing ? {
+            repeat: Infinity, duration: 0.6 + col * 0.15, ease: "easeInOut",
+            repeatType: "reverse", delay: col * 0.1,
+          } : { duration: 0.4 }}
+          style={{ originY: 1 }}
+        >
+          {Array.from({ length: maxH }).map((_, r) => (
+            <div key={r} style={{
+              width: 4, height: 4,
+              background: color,
+              boxShadow: `0 0 3px ${glow}`,
+              imageRendering: "pixelated",
+            }} />
+          ))}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+type PixelTheme = { text: string; screen: string; glow: string };
+
+export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
   const { index, progress, playing } = usePlayer();
   const song = songs[index];
   const pct = (progress / song.duration) * 100;
 
-  if (pixel) {
+  if (pixelTheme) {
+    const { text, screen, glow } = pixelTheme;
     return (
-      <div className="w-full h-full bg-[#9bbc0f] text-[#0f380f] font-pixel p-3 flex flex-col justify-between text-[8px] leading-relaxed">
-        <div className="flex justify-between">
-          <span>▶ NOW</span>
-          <span>{fmt(progress)}</span>
+      <div className="w-full h-full flex flex-col p-2 gap-1" style={{ background: screen, color: text, fontFamily: "'Press Start 2P', monospace" }}>
+        {/* Header row */}
+        <div className="flex justify-between items-center" style={{ fontSize: 6 }}>
+          <span style={{ textShadow: `0 0 4px ${glow}` }}>&#9658; NOW PLAYING</span>
+          <span style={{ textShadow: `0 0 4px ${glow}` }}>{fmt(progress)}</span>
         </div>
-        <div className="text-center space-y-2">
-          <div className="text-[10px]">{song.title.toUpperCase()}</div>
-          <div>{song.artist.toUpperCase()}</div>
-          <div className="flex justify-center gap-1 mt-2">
-            {[0, 1, 2, 3, 4].map(i => (
-              <span key={i} className="eq-bar w-1.5 h-3 bg-[#0f380f]"
-                style={{ animationDelay: `${i * 0.1}s`, animationPlayState: playing ? "running" : "paused" }} />
-            ))}
+
+        {/* Album art + song info */}
+        <div className="flex gap-2 flex-1 min-h-0">
+          {/* Pixelated album art — scaled down to 32x32 then up */}
+          <div style={{
+            width: 52, height: 52, flexShrink: 0,
+            imageRendering: "pixelated",
+            boxShadow: `0 0 0 2px ${text}, 0 0 8px ${glow}`,
+            overflow: "hidden",
+          }}>
+            <img
+              src={song.art}
+              alt=""
+              style={{ width: "100%", height: "100%", imageRendering: "pixelated", objectFit: "cover" }}
+            />
+          </div>
+
+          {/* Text info */}
+          <div className="flex flex-col justify-between flex-1 min-w-0" style={{ fontSize: 5 }}>
+            <div style={{ textShadow: `0 0 4px ${glow}`, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", fontSize: 6 }}>
+              {song.title.toUpperCase().slice(0, 14)}
+            </div>
+            <div style={{ opacity: 0.7, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+              {song.artist.toUpperCase().slice(0, 16)}
+            </div>
+            <div style={{ opacity: 0.5 }}>
+              {song.album.toUpperCase().slice(0, 16)}
+            </div>
+            <PixelEqualizer color={text} glow={glow} playing={playing} />
           </div>
         </div>
-        <div className="h-1.5 w-full bg-[#0f380f]/30">
-          <div className="h-full bg-[#0f380f]" style={{ width: `${pct}%` }} />
+
+        {/* Progress bar made of pixel squares */}
+        <div style={{ fontSize: 5, opacity: 0.6 }}>{fmt(song.duration - progress)} LEFT</div>
+        <div style={{
+          height: 8, width: "100%",
+          background: `${text}22`,
+          boxShadow: `inset 0 0 0 1px ${text}44`,
+          position: "relative",
+          imageRendering: "pixelated",
+        }}>
+          {/* Chunky pixel progress blocks */}
+          <div style={{
+            position: "absolute", top: 0, left: 0, bottom: 0,
+            width: `${pct}%`,
+            background: text,
+            boxShadow: `0 0 6px ${glow}`,
+          }} />
+          {/* Tick marks every ~10% */}
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} style={{
+              position: "absolute", top: 0, bottom: 0,
+              left: `${(i + 1) * 10}%`, width: 1,
+              background: `${text}30`,
+            }} />
+          ))}
         </div>
       </div>
     );

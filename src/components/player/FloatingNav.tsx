@@ -56,7 +56,7 @@ export default function FloatingNav() {
             <div className="flex items-center gap-1">
               {(["standard","pixel"] as const).map(m => (
                 <button key={m} onClick={() => {
-                  const firstColor = m === "pixel" ? "cobalt" : "silver";
+                  const firstColor = m === "pixel" ? "green" : "silver";
                   setIpod({ mode: m, color: firstColor });
                 }}
                   className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded transition"
@@ -67,7 +67,7 @@ export default function FloatingNav() {
             </div>
             <div className="flex items-center gap-1.5">
               {Object.entries(ipod.mode === "pixel" ? PIXEL_COLORS : IPOD_COLORS).map(([k, v]) => (
-                <Swatch key={k} active={ipod.color === k} color={"tile" in v ? v.tile : v.body} onClick={() => setIpod({ color: k })}/>
+                <Swatch key={k} active={ipod.color === k} color={"body" in v ? v.body : v.body} onClick={() => setIpod({ color: k })}/>
               ))}
             </div>
           </>

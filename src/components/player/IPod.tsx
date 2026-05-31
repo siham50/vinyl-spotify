@@ -21,14 +21,14 @@ export const IPOD_COLORS: Record<string, { body: string; wheel: string; accent: 
   roseSteel: { body: "linear-gradient(135deg, #FFDBDA 0%, #DB7F8E 25%, #D5C5C8 50%, #9DA3A4 75%, #604D53 100%)", wheel: "#9DA3A4", accent: "#DB7F8E", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
 };
 
-// Flat illustrated "icon" style — like a small flat app/sticker tile
-export const PIXEL_COLORS: Record<string, { tile: string; accent: string; screen: string; ink: string }> = {
-  cobalt: { tile: "#1f2937", accent: "#3b82f6", screen: "#0f172a", ink: "#e2e8f0" },
-  blossom: { tile: "#fbcfe8", accent: "#db2777", screen: "#fdf2f8", ink: "#831843" },
-  mint: { tile: "#bbf7d0", accent: "#059669", screen: "#ecfdf5", ink: "#064e3b" },
-  amber: { tile: "#fde68a", accent: "#d97706", screen: "#fffbeb", ink: "#78350f" },
-  graphite: { tile: "#27272a", accent: "#f59e0b", screen: "#0a0a0a", ink: "#fbbf24" },
-  lilac: { tile: "#ddd6fe", accent: "#7c3aed", screen: "#f5f3ff", ink: "#3b0764" },
+// Authentic retro game color themes — Game Boy / SNES palette
+export const PIXEL_COLORS: Record<string, { body: string; dark: string; mid: string; text: string; screen: string; glow: string }> = {
+  green:  { body: "#1a3a1a", dark: "#0d1f0d", mid: "#2a5a2a", text: "#00FF41", screen: "#000000", glow: "rgba(0,255,65,0.4)" },
+  purple: { body: "#1a0030", dark: "#0D0014", mid: "#2a0050", text: "#CC44FF", screen: "#0D0014", glow: "rgba(204,68,255,0.4)" },
+  orange: { body: "#2a1400", dark: "#1A0800", mid: "#3a1e00", text: "#FF8C00", screen: "#1A0800", glow: "rgba(255,140,0,0.4)" },
+  blue:   { body: "#001428", dark: "#000D1A", mid: "#001e3a", text: "#00BFFF", screen: "#000D1A", glow: "rgba(0,191,255,0.4)" },
+  pink:   { body: "#280020", dark: "#1A0010", mid: "#3a0030", text: "#FF69B4", screen: "#1A0010", glow: "rgba(255,105,180,0.4)" },
+  red:    { body: "#280000", dark: "#1A0000", mid: "#3a0000", text: "#FF2222", screen: "#1A0000", glow: "rgba(255,34,34,0.4)" },
 };
 
 export default function IPod() {
@@ -38,64 +38,140 @@ export default function IPod() {
   const std = !isPixel ? IPOD_COLORS[ipod.color] ?? IPOD_COLORS.silver : null;
 
   if (isPixel) {
-    // Flat illustrated icon mode
+    const p = PIXEL_COLORS[ipod.color] ?? PIXEL_COLORS.green;
+    // Pixel grid body texture — 4px squares dithered
+    const gridPattern = `repeating-linear-gradient(0deg, ${p.dark} 0px, ${p.dark} 2px, transparent 2px, transparent 4px), repeating-linear-gradient(90deg, ${p.dark} 0px, ${p.dark} 2px, transparent 2px, transparent 4px)`;
+    // Scanline overlay for the screen
+    const scanlines = `repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px)`;
+
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.96 }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="relative"
+        initial={{ opacity: 0, scale: 0.94 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.94 }}
+        transition={{ duration: 0.3 }}
+        className="relative select-none"
         style={{
-          width: 280, height: 470, borderRadius: 36,
-          background: pix!.tile,
-          boxShadow: `inset 3px 3px 0 rgba(255,255,255,0.18), inset -4px -4px 0 rgba(0,0,0,0.25), 0 30px 60px -20px rgba(0,0,0,0.75)`,
+          width: 280, height: 470, borderRadius: 0,
+          background: p.body,
+          backgroundImage: gridPattern,
+          backgroundSize: "4px 4px",
+          boxShadow: `0 0 0 3px ${p.mid}, 0 0 0 4px ${p.dark}, 0 0 40px ${p.glow}, 0 20px 60px rgba(0,0,0,0.9)`,
+          imageRendering: "pixelated",
         }}
       >
-        {/* Flat screen */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col justify-between p-3" style={{
-          top: 26, width: 232, height: 200, borderRadius: 14,
-          background: pix!.screen, color: pix!.ink,
-          boxShadow: `inset 0 0 0 3px ${pix!.accent}, 0 6px 0 rgba(0,0,0,0.2)`,
-        }}>
-          <div className="flex items-center justify-between text-[9px] font-bold tracking-widest opacity-80">
-            <span>iPOD</span>
-            <span style={{ color: pix!.accent }}>● PLAY</span>
-          </div>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: pix!.accent }}>
-              {playing
-                ? <Pause className="w-8 h-8" style={{ color: pix!.screen }} fill="currentColor" />
-                : <Play className="w-8 h-8 ml-1" style={{ color: pix!.screen }} fill="currentColor" />}
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <div className="h-1 rounded-full" style={{ background: `${pix!.accent}33` }}>
-              <div className="h-full rounded-full" style={{ background: pix!.accent, width: "42%" }} />
-            </div>
-            <div className="text-[9px] font-semibold opacity-70 text-center">Now Playing</div>
-          </div>
+        {/* Dither edge strips — top */}
+        <div className="absolute top-0 left-0 right-0 h-2 pointer-events-none" style={{
+          backgroundImage: `repeating-linear-gradient(90deg, ${p.mid} 0px, ${p.mid} 4px, ${p.dark} 4px, ${p.dark} 8px)`,
+          opacity: 0.8,
+        }} />
+        {/* Dither edge strips — bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-2 pointer-events-none" style={{
+          backgroundImage: `repeating-linear-gradient(90deg, ${p.dark} 0px, ${p.dark} 4px, ${p.mid} 4px, ${p.mid} 8px)`,
+          opacity: 0.8,
+        }} />
+        {/* Dither edge strips — left */}
+        <div className="absolute top-0 bottom-0 left-0 w-2 pointer-events-none" style={{
+          backgroundImage: `repeating-linear-gradient(0deg, ${p.mid} 0px, ${p.mid} 4px, ${p.dark} 4px, ${p.dark} 8px)`,
+          opacity: 0.8,
+        }} />
+        {/* Dither edge strips — right */}
+        <div className="absolute top-0 bottom-0 right-0 w-2 pointer-events-none" style={{
+          backgroundImage: `repeating-linear-gradient(0deg, ${p.dark} 0px, ${p.dark} 4px, ${p.mid} 4px, ${p.mid} 8px)`,
+          opacity: 0.8,
+        }} />
+
+        {/* PIXEL SCREEN */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2 overflow-hidden"
+          style={{
+            top: 22, width: 232, height: 200, borderRadius: 0,
+            background: p.screen,
+            boxShadow: `0 0 0 3px ${p.mid}, 0 0 0 4px ${p.dark}, inset 0 0 20px rgba(0,0,0,0.8), 0 0 12px ${p.glow}`,
+          }}
+        >
+          {/* Scanline overlay */}
+          <div className="absolute inset-0 pointer-events-none z-10" style={{
+            backgroundImage: scanlines,
+            backgroundSize: "100% 2px",
+          }} />
+
+          <NowPlayingScreen pixelTheme={{ text: p.text, screen: p.screen, glow: p.glow }} />
         </div>
 
-        {/* Flat wheel */}
-        <div className="absolute left-1/2 -translate-x-1/2" style={{
-          bottom: 36, width: 200, height: 200, borderRadius: "50%",
-          background: pix!.accent,
-          boxShadow: `inset 4px 4px 0 rgba(255,255,255,0.2), inset -4px -4px 0 rgba(0,0,0,0.3)`,
-        }}>
-          <button onClick={() => { }} className="absolute top-3 left-1/2 -translate-x-1/2 text-[10px] font-extrabold" style={{ color: pix!.screen }}>MENU</button>
-          <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2"><SkipForward className="w-5 h-5" style={{ color: pix!.screen }} fill="currentColor" /></button>
-          <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2"><SkipBack className="w-5 h-5" style={{ color: pix!.screen }} fill="currentColor" /></button>
-          <button onClick={toggle} className="absolute bottom-3 left-1/2 -translate-x-1/2">
-            {playing
-              ? <Pause className="w-5 h-5" style={{ color: pix!.screen }} fill="currentColor" />
-              : <Play className="w-5 h-5" style={{ color: pix!.screen }} fill="currentColor" />}
-          </button>
-          <motion.button whileTap={{ scale: 0.94 }} onClick={toggle}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{
-              width: 78, height: 78, borderRadius: "50%",
-              background: pix!.tile,
-              boxShadow: `inset 3px 3px 0 rgba(255,255,255,0.15), inset -3px -3px 0 rgba(0,0,0,0.3)`,
+        {/* iPod text label */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2 font-pixel text-[7px] tracking-[0.3em]"
+          style={{ top: 228, color: p.text, textShadow: `0 0 6px ${p.glow}` }}
+        >
+          iPOD
+        </div>
+
+        {/* D-PAD SQUARE WHEEL */}
+        <div
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{
+            bottom: 32, width: 200, height: 200, borderRadius: 0,
+            background: p.dark,
+            boxShadow: `0 0 0 3px ${p.mid}, 0 0 0 4px ${p.dark}, 0 0 16px ${p.glow}`,
+          }}
+        >
+          {/* D-PAD cross arms */}
+          {/* Vertical bar */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0" style={{ width: 56, background: p.mid }} />
+          {/* Horizontal bar */}
+          <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0" style={{ height: 56, background: p.mid }} />
+
+          {/* Corner fills (dark) to create cross shape */}
+          {[[0,0],[1,0],[0,1],[1,1]].map(([x,y]) => (
+            <div key={`${x}-${y}`} className="absolute" style={{
+              width: 72, height: 72,
+              left: x ? "auto" : 0, right: x ? 0 : "auto",
+              top: y ? "auto" : 0, bottom: y ? 0 : "auto",
+              background: p.body,
+              backgroundImage: gridPattern,
+              backgroundSize: "4px 4px",
             }} />
+          ))}
+
+          {/* Navigation labels */}
+          <button onClick={() => {}} className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-14 flex flex-col items-center justify-center gap-0.5" style={{ color: p.text }}>
+            <span className="font-pixel text-[8px]" style={{ textShadow: `0 0 4px ${p.glow}` }}>↑</span>
+            <span className="font-pixel text-[5px] tracking-widest" style={{ textShadow: `0 0 4px ${p.glow}` }}>MENU</span>
+          </button>
+          <button onClick={next} className="absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 flex items-center justify-center" style={{ color: p.text }}>
+            <span className="font-pixel text-[10px]" style={{ textShadow: `0 0 4px ${p.glow}` }}>→</span>
+          </button>
+          <button onClick={prev} className="absolute left-0 top-1/2 -translate-y-1/2 w-14 h-14 flex items-center justify-center" style={{ color: p.text }}>
+            <span className="font-pixel text-[10px]" style={{ textShadow: `0 0 4px ${p.glow}` }}>←</span>
+          </button>
+          <button onClick={toggle} className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-14 flex items-center justify-center" style={{ color: p.text }}>
+            <span className="font-pixel text-[10px]" style={{ textShadow: `0 0 4px ${p.glow}` }}>↓</span>
+          </button>
+
+          {/* Center select button */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={toggle}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center font-pixel text-[6px]"
+            style={{
+              width: 52, height: 52, borderRadius: 0,
+              background: p.mid,
+              color: p.text,
+              boxShadow: `0 0 0 2px ${p.text}, 0 0 8px ${p.glow}`,
+              textShadow: `0 0 4px ${p.glow}`,
+            }}
+          >
+            {playing ? "❚❚" : "▶"}
+          </motion.button>
+        </div>
+
+        {/* VinyPod Logo — pixel font */}
+        <div
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 font-pixel text-[6px] tracking-[0.2em]"
+          style={{ color: p.text, textShadow: `0 0 6px ${p.glow}` }}
+        >
+          VINYPOD
         </div>
       </motion.div>
     );

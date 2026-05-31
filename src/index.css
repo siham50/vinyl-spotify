@@ -1,10 +1,11 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 
 @theme {
   --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --font-display: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --font-pixel: ui-monospace, Consolas, monospace;
+  --font-pixel: 'Press Start 2P', ui-monospace, Consolas, monospace;
 }
 
 :root {
