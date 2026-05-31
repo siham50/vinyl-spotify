@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
-import { usePlayer } from "@/store/playerStore";
-import { NowPlayingScreen } from "./Screen";
+import { usePlayerStore } from "@/store/usePlayerStore";
+import { NowPlayingScreen, SongListScreen } from "./Screen";
 
 // Standard skeuomorphic palette with diagonal depth
 export const IPOD_COLORS: Record<string, { body: string; wheel: string; edge: string; tlHi: string; brSh: string }> = {
@@ -34,10 +34,12 @@ export const PIXEL_COLORS: Record<string, { tile: string; accent: string; screen
 };
 
 export default function IPod() {
-  const { ipod, playing, toggle, next, prev } = usePlayer();
-  const isPixel = ipod.mode === "pixel";
-  const pix = isPixel ? PIXEL_COLORS[ipod.color] ?? PIXEL_COLORS.cobalt : null;
-  const std = !isPixel ? IPOD_COLORS[ipod.color] ?? IPOD_COLORS.silver : null;
+  const { ipodStyle, ipodColorTheme, ipodPixelColor, isPlaying, resume, pause, nextSong, prevSong, ipodScreen, setIpodScreen } = usePlayerStore();
+  const toggle = () => isPlaying ? pause() : resume();
+  const isPixel = ipodStyle === "pixel";
+  const pixColor = isPixel ? ipodPixelColor : ipodColorTheme;
+  const pix = isPixel ? PIXEL_COLORS[pixColor] ?? PIXEL_COLORS.cobalt : null;
+  const std = !isPixel ? IPOD_COLORS[ipodColorTheme] ?? IPOD_COLORS.silver : null;
 
   if (isPixel) {
     // Flat illustrated icon mode
@@ -60,20 +62,10 @@ export default function IPod() {
         }}>
           <div className="flex items-center justify-between text-[9px] font-bold tracking-widest opacity-80">
             <span>iPOD</span>
-            <span style={{ color: pix!.accent }}>● PLAY</span>
+            <span style={{ color: pix!.accent }}>{isPlaying ? '● PLAY' : '⏸ PAUSE'}</span>
           </div>
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: pix!.accent }}>
-              {playing
-                ? <Pause className="w-8 h-8" style={{ color: pix!.screen }} fill="currentColor"/>
-                : <Play className="w-8 h-8 ml-1" style={{ color: pix!.screen }} fill="currentColor"/>}
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <div className="h-1 rounded-full" style={{ background: `${pix!.accent}33` }}>
-              <div className="h-full rounded-full" style={{ background: pix!.accent, width: "42%" }}/>
-            </div>
-            <div className="text-[9px] font-semibold opacity-70 text-center">Now Playing</div>
+          <div className="flex-1 overflow-hidden rounded-md mt-1 mb-1 relative">
+            {ipodScreen === 'nowPlaying' ? <NowPlayingScreen pixel /> : <SongListScreen pixel />}
           </div>
         </div>
 
@@ -83,11 +75,11 @@ export default function IPod() {
           background: pix!.accent,
           boxShadow: `inset 4px 4px 0 rgba(255,255,255,0.2), inset -4px -4px 0 rgba(0,0,0,0.3)`,
         }}>
-          <button onClick={()=>{}} className="absolute top-3 left-1/2 -translate-x-1/2 text-[10px] font-extrabold" style={{ color: pix!.screen }}>MENU</button>
-          <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2"><SkipForward className="w-5 h-5" style={{ color: pix!.screen }} fill="currentColor"/></button>
-          <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2"><SkipBack className="w-5 h-5" style={{ color: pix!.screen }} fill="currentColor"/></button>
+          <button onClick={() => setIpodScreen(ipodScreen === 'nowPlaying' ? 'menu' : 'nowPlaying')} className="absolute top-3 left-1/2 -translate-x-1/2 text-[10px] font-extrabold" style={{ color: pix!.screen }}>MENU</button>
+          <button onClick={nextSong} className="absolute right-3 top-1/2 -translate-y-1/2"><SkipForward className="w-5 h-5" style={{ color: pix!.screen }} fill="currentColor"/></button>
+          <button onClick={prevSong} className="absolute left-3 top-1/2 -translate-y-1/2"><SkipBack className="w-5 h-5" style={{ color: pix!.screen }} fill="currentColor"/></button>
           <button onClick={toggle} className="absolute bottom-3 left-1/2 -translate-x-1/2">
-            {playing
+            {isPlaying
               ? <Pause className="w-5 h-5" style={{ color: pix!.screen }} fill="currentColor"/>
               : <Play className="w-5 h-5" style={{ color: pix!.screen }} fill="currentColor"/>}
           </button>
@@ -135,7 +127,7 @@ export default function IPod() {
           boxShadow: "inset 2px 2px 4px rgba(0,0,0,0.9), inset -2px -2px 4px rgba(0,0,0,0.9), 0 0 0 2px rgba(0,0,0,0.5), 0 0 0 4px rgba(255,255,255,0.35)",
         }}
       >
-        <NowPlayingScreen/>
+        {ipodScreen === 'nowPlaying' ? <NowPlayingScreen /> : <SongListScreen />}
       </div>
 
       {/* Click wheel with depth */}
@@ -147,11 +139,11 @@ export default function IPod() {
           boxShadow: "inset 3px 3px 5px rgba(255,255,255,0.75), inset -3px -3px 6px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.18), 0 4px 8px rgba(0,0,0,0.25)",
         }}
       >
-        <button onClick={() => {}} className="wheel-glow absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 flex items-start justify-center pt-2 text-[10px] font-semibold text-black/70 rounded-[20px]">MENU</button>
-        <button onClick={next} className="wheel-glow absolute right-0 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-end pr-2 rounded-[20px]"><SkipForward className="w-4 h-4 text-black/70" fill="currentColor"/></button>
-        <button onClick={prev} className="wheel-glow absolute left-0 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-start pl-2 rounded-[20px]"><SkipBack className="w-4 h-4 text-black/70" fill="currentColor"/></button>
+        <button onClick={() => setIpodScreen(ipodScreen === 'nowPlaying' ? 'menu' : 'nowPlaying')} className="wheel-glow absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 flex items-start justify-center pt-2 text-[10px] font-semibold text-black/70 rounded-[20px]">MENU</button>
+        <button onClick={nextSong} className="wheel-glow absolute right-0 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-end pr-2 rounded-[20px]"><SkipForward className="w-4 h-4 text-black/70" fill="currentColor"/></button>
+        <button onClick={prevSong} className="wheel-glow absolute left-0 top-1/2 -translate-y-1/2 w-10 h-16 flex items-center justify-start pl-2 rounded-[20px]"><SkipBack className="w-4 h-4 text-black/70" fill="currentColor"/></button>
         <button onClick={toggle} className="wheel-glow absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 flex items-end justify-center pb-2 rounded-[20px]">
-          {playing ? <Pause className="w-4 h-4 text-black/70" fill="currentColor"/> : <Play className="w-4 h-4 text-black/70" fill="currentColor"/>}
+          {isPlaying ? <Pause className="w-4 h-4 text-black/70" fill="currentColor"/> : <Play className="w-4 h-4 text-black/70" fill="currentColor"/>}
         </button>
 
         <motion.button

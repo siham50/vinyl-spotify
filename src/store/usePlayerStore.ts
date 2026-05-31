@@ -17,6 +17,7 @@ interface PlayerState {
   ipodColorTheme: string;
   ipodStyle: 'standard' | 'pixel';
   ipodPixelColor: string;
+  ipodScreen: 'menu' | 'nowPlaying';
 
   vinylShape: 'round' | 'heart';
   vinylStyle: 'standard' | 'pixel' | 'retro' | 'holographic' | '8bit';
@@ -33,6 +34,7 @@ interface PlayerState {
   setIpodColorTheme: (theme: string) => void;
   setIpodStyle: (style: PlayerState['ipodStyle']) => void;
   setIpodPixelColor: (color: string) => void;
+  setIpodScreen: (screen: 'menu' | 'nowPlaying') => void;
   setVinylShape: (shape: PlayerState['vinylShape']) => void;
   setVinylStyle: (style: PlayerState['vinylStyle']) => void;
   setVinylColor: (color: string) => void;
@@ -52,6 +54,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   ipodColorTheme: 'silver',
   ipodStyle: 'standard',
   ipodPixelColor: 'green',
+  ipodScreen: 'nowPlaying',
 
   vinylShape: 'round',
   vinylStyle: 'standard',
@@ -84,6 +87,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setIpodColorTheme: (theme) => set({ ipodColorTheme: theme }),
   setIpodStyle: (style) => set({ ipodStyle: style }),
   setIpodPixelColor: (color) => set({ ipodPixelColor: color }),
+  setIpodScreen: (screen) => set({ ipodScreen: screen }),
   setVinylShape: (shape) => set({ vinylShape: shape }),
   setVinylStyle: (style) => set({ vinylStyle: style }),
   setVinylColor: (color) => set({ vinylColor: color }),
