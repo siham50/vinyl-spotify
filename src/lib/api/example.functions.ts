@@ -1,3 +1,4 @@
+// @ts-nocheck — scaffold file for TanStack Start (not used in this Vite project)
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 

@@ -1,53 +1,77 @@
-import { create } from "zustand";
-import { songs } from "@/lib/songs";
+/**
+ * Compatibility shim — exposes the legacy `usePlayer` API that the UI
+ * components (IPod, Vinyl, FloatingNav, Screen) depend on, backed by
+ * the canonical `usePlayerStore`.
+ */
 
-export type View = "ipod" | "vinyl";
-export type IpodTheme = { mode: "standard" | "pixel"; color: string };
-export type VinylShape = "round" | "heart";
-export type VinylStyle = "standard" | "pixel" | "8bit" | "retro";
+import { usePlayerStore } from './usePlayerStore';
 
-type State = {
-  view: View;
-  index: number;
-  playing: boolean;
-  progress: number;
-  volume: number;
-  ipod: IpodTheme;
-  vinyl: { shape: VinylShape; style: VinylStyle; color: string };
-  setView: (v: View) => void;
-  next: () => void;
-  prev: () => void;
-  toggle: () => void;
-  setProgress: (n: number) => void;
-  tick: () => void;
-  setIndex: (i: number) => void;
-  setIpod: (p: Partial<IpodTheme>) => void;
-  setVinyl: (p: Partial<{ shape: VinylShape; style: VinylStyle; color: string }>) => void;
-  setVolume: (n: number) => void;
-};
+export type View = 'ipod' | 'vinyl';
 
-export const usePlayer = create<State>((set, get) => ({
-  view: "ipod",
-  index: 0,
-  playing: true,
-  progress: 42,
-  volume: 0.7,
-  ipod: { mode: "standard", color: "silver" },
-  vinyl: { shape: "round", style: "standard", color: "black" },
-  setView: (view) => set({ view }),
-  next: () => set((s) => ({ index: (s.index + 1) % songs.length, progress: 0 })),
-  prev: () => set((s) => ({ index: (s.index - 1 + songs.length) % songs.length, progress: 0 })),
-  toggle: () => set((s) => ({ playing: !s.playing })),
-  setProgress: (n) => set({ progress: n }),
-  tick: () => {
-    const { playing, progress, index } = get();
-    if (!playing) return;
-    const d = songs[index].duration;
-    if (progress + 1 >= d) set({ index: (index + 1) % songs.length, progress: 0 });
-    else set({ progress: progress + 1 });
-  },
-  setIndex: (index) => set({ index, progress: 0 }),
-  setIpod: (p) => set((s) => ({ ipod: { ...s.ipod, ...p } })),
-  setVinyl: (p) => set((s) => ({ vinyl: { ...s.vinyl, ...p } })),
-  setVolume: (volume) => set({ volume }),
-}));
+export function usePlayer() {
+  const store = usePlayerStore();
+
+  const songs = store.songs;
+  const currentId = store.currentSongId;
+  const index = currentId ? songs.findIndex((s) => s.id === currentId) : 0;
+  const safeIndex = index < 0 ? 0 : index;
+
+  return {
+    // ── View ────────────────────────────────────────────────────────────────
+    view: store.viewMode as View,
+    setView: (v: View) => store.setViewMode(v),
+
+    // ── iPod config ─────────────────────────────────────────────────────────
+    ipod: {
+      mode: store.ipodStyle as 'standard' | 'pixel',
+      color: store.ipodStyle === 'pixel' ? store.ipodPixelColor : store.ipodColorTheme,
+    },
+    setIpod: (patch: { mode?: 'standard' | 'pixel'; color?: string }) => {
+      if (patch.mode !== undefined) store.setIpodStyle(patch.mode);
+      if (patch.color !== undefined) {
+        if ((patch.mode ?? store.ipodStyle) === 'pixel') {
+          store.setIpodPixelColor(patch.color);
+        } else {
+          store.setIpodColorTheme(patch.color);
+        }
+      }
+    },
+
+    // ── Vinyl config ────────────────────────────────────────────────────────
+    vinyl: {
+      shape: store.vinylShape,
+      style: store.vinylStyle,
+      color: store.vinylColor,
+    },
+    setVinyl: (patch: { shape?: 'round' | 'heart'; style?: string; color?: string }) => {
+      if (patch.shape !== undefined) store.setVinylShape(patch.shape);
+      if (patch.style !== undefined) store.setVinylStyle(patch.style as any);
+      if (patch.color !== undefined) store.setVinylColor(patch.color);
+    },
+
+    // ── Playback ─────────────────────────────────────────────────────────────
+    index: safeIndex,
+    playing: store.isPlaying,
+    progress: store.progress * (songs[safeIndex]?.duration ?? 0),
+    volume: store.volume,
+
+    toggle: () => (store.isPlaying ? store.pause() : store.resume()),
+    next: () => {
+      if (!store.currentSongId) store.play(songs[0]?.id ?? '');
+      else store.nextSong();
+    },
+    prev: () => {
+      if (!store.currentSongId) store.play(songs[0]?.id ?? '');
+      else store.prevSong();
+    },
+    play: (songId: string) => store.play(songId),
+    pause: () => store.pause(),
+
+    /** setProgress accepts an absolute seconds value (legacy API) */
+    setProgress: (seconds: number) => {
+      const dur = songs[safeIndex]?.duration ?? 1;
+      store.setProgress(Math.min(1, Math.max(0, seconds / dur)));
+    },
+    setVolume: store.setVolume,
+  };
+}
