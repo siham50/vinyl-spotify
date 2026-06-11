@@ -3,7 +3,15 @@ import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import { usePlayer } from "@/store/playerStore";
 import { NowPlayingScreen } from "./Screen";
 
-export const IPOD_COLORS: Record<string, { body: string; wheel: string; accent: string; shadow: string; logo: string }> = {
+import { VINYL_COLORS } from "./Vinyl";
+
+const isLight = (hex: string) => {
+  if (!hex || !hex.startsWith("#") || hex.length < 7) return false;
+  const rgb = parseInt(hex.slice(1, 7), 16);
+  return ((rgb >> 16) & 0xff) * 0.299 + ((rgb >> 8) & 0xff) * 0.587 + (rgb & 0xff) * 0.114 > 160;
+};
+
+const BASE_IPOD_COLORS: Record<string, { body: string; wheel: string; accent: string; shadow: string; logo: string }> = {
   silver: { body: "#C8C8C8", wheel: "#B0B0B0", accent: "#E8E8E8", shadow: "rgba(0,0,0,0.25)", logo: "#1a1a1a" },
   black:  { body: "#1a1a1a", wheel: "#111111", accent: "#2a2a2a", shadow: "rgba(0,0,0,0.8)", logo: "#ffffff" },
   pink:   { body: "#F4A7C3", wheel: "#E8849F", accent: "#FCC8D8", shadow: "rgba(0,0,0,0.2)", logo: "#1a1a1a" },
@@ -19,6 +27,22 @@ export const IPOD_COLORS: Record<string, { body: string; wheel: string; accent: 
   sapphireBlush: { body: "linear-gradient(135deg, #FFF0E9 0%, #F2A4A5 25%, #E5C5C6 50%, #3059A4 75%, #006E87 100%)", wheel: "#3059A4", accent: "#F2A4A5", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
   peachAmethyst: { body: "linear-gradient(135deg, #FFE9E9 0%, #FFF1D2 25%, #D18A75 50%, #A33E7E 75%, #260C45 100%)", wheel: "#A33E7E", accent: "#FFF1D2", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
   roseSteel: { body: "linear-gradient(135deg, #FFDBDA 0%, #DB7F8E 25%, #D5C5C8 50%, #9DA3A4 75%, #604D53 100%)", wheel: "#9DA3A4", accent: "#DB7F8E", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
+};
+
+export const IPOD_COLORS: Record<string, { body: string; wheel: string; accent: string; shadow: string; logo: string }> = {
+  ...BASE_IPOD_COLORS,
+  ...Object.fromEntries(
+    Object.entries(VINYL_COLORS).map(([k, v]) => [
+      k,
+      BASE_IPOD_COLORS[k] || {
+        body: v.base,
+        wheel: v.groove,
+        accent: v.label,
+        shadow: "rgba(0,0,0,0.5)",
+        logo: isLight(v.base) ? "#1a1a1a" : "#ffffff"
+      }
+    ])
+  )
 };
 
 export const PIXEL_COLORS: Record<string, { body: string; dark: string; mid: string; text: string; screen: string; glow: string }> = Object.fromEntries(
