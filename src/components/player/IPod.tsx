@@ -35,6 +35,21 @@ export const PIXEL_COLORS: Record<string, { body: string; dark: string; mid: str
   })
 );
 
+const { wheelPath, centerPath } = (() => {
+  let w = "", c = "";
+  for (let y = 0; y < 50; y++) {
+    for (let x = 0; x < 50; x++) {
+      const dx = x - 24.5;
+      const dy = y - 24.5;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      if (d > 24.5) continue;
+      if (d <= 8.5) c += `M${x},${y}h1v1h-1z`;
+      else w += `M${x},${y}h1v1h-1z`;
+    }
+  }
+  return { wheelPath: w, centerPath: c };
+})();
+
 export default function IPod() {
   const { ipod, playing, toggle, next, prev } = usePlayer();
   const isPixel = ipod.mode === "pixel";
@@ -43,10 +58,9 @@ export default function IPod() {
 
   if (isPixel) {
     const p = PIXEL_COLORS[ipod.color] ?? PIXEL_COLORS.silver;
-    // Pixel grid body texture — 4px squares dithered
-    const gridPattern = `repeating-linear-gradient(0deg, ${p.dark} 0px, ${p.dark} 2px, transparent 2px, transparent 4px), repeating-linear-gradient(90deg, ${p.dark} 0px, ${p.dark} 2px, transparent 2px, transparent 4px)`;
-    // Scanline overlay for the screen
-    const scanlines = `repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px)`;
+    const pixelClipOuter = `polygon(12px 0, calc(100% - 12px) 0, calc(100% - 12px) 4px, calc(100% - 8px) 4px, calc(100% - 8px) 8px, calc(100% - 4px) 8px, calc(100% - 4px) 12px, 100% 12px, 100% calc(100% - 12px), calc(100% - 4px) calc(100% - 12px), calc(100% - 4px) calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) calc(100% - 4px), calc(100% - 12px) calc(100% - 4px), calc(100% - 12px) 100%, 12px 100%, 12px calc(100% - 4px), 8px calc(100% - 4px), 8px calc(100% - 8px), 4px calc(100% - 8px), 4px calc(100% - 12px), 0 calc(100% - 12px), 0 12px, 4px 12px, 4px 8px, 8px 8px, 8px 4px, 12px 4px)`;
+    const pixelClipInner = `polygon(8px 0, calc(100% - 8px) 0, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px, 100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0 calc(100% - 8px), 0 8px, 4px 8px, 4px 4px, 8px 4px)`;
+    const screenClipOuter = `polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 4px, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 4px), 0 calc(100% - 4px), 0 4px, 4px 4px)`;
 
     return (
       <motion.div
@@ -55,127 +69,55 @@ export default function IPod() {
         exit={{ opacity: 0, scale: 0.94 }}
         transition={{ duration: 0.3 }}
         className="relative select-none"
-        style={{
-          width: 280, height: 470, borderRadius: 0,
-          background: p.body,
-          backgroundImage: gridPattern,
-          backgroundSize: "4px 4px",
-          boxShadow: `0 0 0 3px ${p.mid}, 0 0 0 4px ${p.dark}, 0 0 40px ${p.glow}, 0 20px 60px rgba(0,0,0,0.9)`,
-          imageRendering: "pixelated",
-        }}
+        style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.6))" }}
       >
-        {/* Dither edge strips — top */}
-        <div className="absolute top-0 left-0 right-0 h-2 pointer-events-none" style={{
-          backgroundImage: `repeating-linear-gradient(90deg, ${p.mid} 0px, ${p.mid} 4px, ${p.dark} 4px, ${p.dark} 8px)`,
-          opacity: 0.8,
-        }} />
-        {/* Dither edge strips — bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-2 pointer-events-none" style={{
-          backgroundImage: `repeating-linear-gradient(90deg, ${p.dark} 0px, ${p.dark} 4px, ${p.mid} 4px, ${p.mid} 8px)`,
-          opacity: 0.8,
-        }} />
-        {/* Dither edge strips — left */}
-        <div className="absolute top-0 bottom-0 left-0 w-2 pointer-events-none" style={{
-          backgroundImage: `repeating-linear-gradient(0deg, ${p.mid} 0px, ${p.mid} 4px, ${p.dark} 4px, ${p.dark} 8px)`,
-          opacity: 0.8,
-        }} />
-        {/* Dither edge strips — right */}
-        <div className="absolute top-0 bottom-0 right-0 w-2 pointer-events-none" style={{
-          backgroundImage: `repeating-linear-gradient(0deg, ${p.dark} 0px, ${p.dark} 4px, ${p.mid} 4px, ${p.mid} 8px)`,
-          opacity: 0.8,
-        }} />
+        <div style={{ width: 280, height: 472, background: "#000", clipPath: pixelClipOuter, position: "relative" }}>
+          <div style={{ position: "absolute", top: 4, left: 4, right: 4, bottom: 4, background: p.body, clipPath: pixelClipInner }}>
+            {/* Highlights and Shadows */}
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "rgba(255,255,255,0.4)" }} />
+            <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: 4, background: "rgba(255,255,255,0.4)" }} />
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, background: "rgba(0,0,0,0.25)" }} />
+            <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: 4, background: "rgba(0,0,0,0.25)" }} />
 
-        {/* PIXEL SCREEN */}
-        <div
-          className="absolute left-1/2 -translate-x-1/2 overflow-hidden"
-          style={{
-            top: 22, width: 232, height: 200, borderRadius: 0,
-            background: p.screen,
-            boxShadow: `0 0 0 3px ${p.mid}, 0 0 0 4px ${p.dark}, inset 0 0 20px rgba(0,0,0,0.8), 0 0 12px ${p.glow}`,
-          }}
-        >
-          {/* Scanline overlay */}
-          <div className="absolute inset-0 pointer-events-none z-10" style={{
-            backgroundImage: scanlines,
-            backgroundSize: "100% 2px",
-          }} />
+            {/* PIXEL SCREEN */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2 overflow-hidden"
+              style={{
+                top: 24, width: 232, height: 200,
+                background: "#000",
+                clipPath: screenClipOuter,
+              }}
+            >
+              <div style={{ position: "absolute", top: 4, left: 4, right: 4, bottom: 4, background: p.screen }}>
+                <NowPlayingScreen pixelTheme={{ text: p.text, screen: p.screen, glow: p.glow }} />
+              </div>
+            </div>
 
-          <NowPlayingScreen pixelTheme={{ text: p.text, screen: p.screen, glow: p.glow }} />
-        </div>
+            {/* D-PAD SQUARE WHEEL -> Pixel Circle Wheel */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2"
+              style={{ bottom: 32, width: 200, height: 200 }}
+            >
+              <svg viewBox="0 0 50 50" className="absolute inset-0 w-full h-full" style={{ imageRendering: "pixelated" }}>
+                <path d={wheelPath} fill="#ffffff" />
+                <path d={centerPath} fill={p.body} />
+              </svg>
 
-        {/* iPod text label */}
-        <div
-          className="absolute left-1/2 -translate-x-1/2 font-pixel text-[7px] tracking-[0.3em]"
-          style={{ top: 228, color: p.text, textShadow: `0 0 6px ${p.glow}` }}
-        >
-          iPOD
-        </div>
-
-        {/* D-PAD SQUARE WHEEL */}
-        <div
-          className="absolute left-1/2 -translate-x-1/2"
-          style={{
-            bottom: 32, width: 200, height: 200, borderRadius: 0,
-            background: p.dark,
-            boxShadow: `0 0 0 3px ${p.mid}, 0 0 0 4px ${p.dark}, 0 0 16px ${p.glow}`,
-          }}
-        >
-          {/* D-PAD cross arms */}
-          {/* Vertical bar */}
-          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0" style={{ width: 56, background: p.mid }} />
-          {/* Horizontal bar */}
-          <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0" style={{ height: 56, background: p.mid }} />
-
-          {/* Corner fills (dark) to create cross shape */}
-          {[[0,0],[1,0],[0,1],[1,1]].map(([x,y]) => (
-            <div key={`${x}-${y}`} className="absolute" style={{
-              width: 72, height: 72,
-              left: x ? "auto" : 0, right: x ? 0 : "auto",
-              top: y ? "auto" : 0, bottom: y ? 0 : "auto",
-              background: p.body,
-              backgroundImage: gridPattern,
-              backgroundSize: "4px 4px",
-            }} />
-          ))}
-
-          {/* Navigation labels */}
-          <button onClick={() => {}} className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-14 flex flex-col items-center justify-center gap-0.5" style={{ color: p.text }}>
-            <span className="font-pixel text-[8px]" style={{ textShadow: `0 0 4px ${p.glow}` }}>↑</span>
-            <span className="font-pixel text-[5px] tracking-widest" style={{ textShadow: `0 0 4px ${p.glow}` }}>MENU</span>
-          </button>
-          <button onClick={next} className="absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 flex items-center justify-center" style={{ color: p.text }}>
-            <span className="font-pixel text-[10px]" style={{ textShadow: `0 0 4px ${p.glow}` }}>→</span>
-          </button>
-          <button onClick={prev} className="absolute left-0 top-1/2 -translate-y-1/2 w-14 h-14 flex items-center justify-center" style={{ color: p.text }}>
-            <span className="font-pixel text-[10px]" style={{ textShadow: `0 0 4px ${p.glow}` }}>←</span>
-          </button>
-          <button onClick={toggle} className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-14 flex items-center justify-center" style={{ color: p.text }}>
-            <span className="font-pixel text-[10px]" style={{ textShadow: `0 0 4px ${p.glow}` }}>↓</span>
-          </button>
-
-          {/* Center select button */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={toggle}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center font-pixel text-[6px]"
-            style={{
-              width: 52, height: 52, borderRadius: 0,
-              background: p.mid,
-              color: p.text,
-              boxShadow: `0 0 0 2px ${p.text}, 0 0 8px ${p.glow}`,
-              textShadow: `0 0 4px ${p.glow}`,
-            }}
-          >
-            {playing ? "❚❚" : "▶"}
-          </motion.button>
-        </div>
-
-        {/* VinyPod Logo — pixel font */}
-        <div
-          className="absolute bottom-3 left-1/2 -translate-x-1/2 font-pixel text-[6px] tracking-[0.2em]"
-          style={{ color: p.text, textShadow: `0 0 6px ${p.glow}` }}
-        >
-          VINYPOD
+              {/* Navigation labels */}
+              <button onClick={() => {}} className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-14 flex items-center justify-center font-pixel text-[10px]" style={{ color: p.body, filter: "brightness(0.6)" }}>MENU</button>
+              <button onClick={next} className="absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 flex items-center justify-center font-pixel text-[10px]" style={{ color: p.body, filter: "brightness(0.6)" }}>{`>>|`}</button>
+              <button onClick={prev} className="absolute left-0 top-1/2 -translate-y-1/2 w-14 h-14 flex items-center justify-center font-pixel text-[10px]" style={{ color: p.body, filter: "brightness(0.6)" }}>{`|<<`}</button>
+              <button onClick={toggle} className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-14 flex items-center justify-center font-pixel text-[10px]" style={{ color: p.body, filter: "brightness(0.6)" }}>{playing ? `||` : `>||`}</button>
+              
+              {/* Center select button hit area */}
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={toggle}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                style={{ width: 68, height: 68, borderRadius: "50%" }}
+              />
+            </div>
+          </div>
         </div>
       </motion.div>
     );

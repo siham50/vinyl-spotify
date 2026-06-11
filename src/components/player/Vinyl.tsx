@@ -1,5 +1,5 @@
 import { motion, useAnimation } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { usePlayer } from "@/store/playerStore";
 import { songs, fmt } from "@/lib/songs";
@@ -92,16 +92,61 @@ export default function Vinyl() {
 
   // Shared animation controls — guarantees true infinite spin
   const spinControls = useAnimation();
+  
   useEffect(() => {
     if (playing) {
       spinControls.start({
         rotate: 360,
-        transition: { repeat: Infinity, ease: "linear", duration: 6 },
+        transition: { duration: 4, ease: "linear", repeat: Infinity },
       });
     } else {
       spinControls.stop();
     }
   }, [playing, spinControls]);
+
+  const pixelPaths = useMemo(() => {
+    if (!isPixel) return null;
+    let base = "", hole = "", label = "", labelShadow = "", groove = "", rim = "";
+    for (let y = 0; y < 32; y++) {
+      for (let x = 0; x < 32; x++) {
+        const dx = x - 15.5;
+        const dy = y - 15.5;
+        const d = Math.sqrt(dx * dx + dy * dy);
+
+        let isInside = false;
+        if (isHeart) {
+          const isLeftLobe = Math.sqrt((x - 10.5) ** 2 + (y - 11.5) ** 2) <= 5.5;
+          const isRightLobe = Math.sqrt((x - 20.5) ** 2 + (y - 11.5) ** 2) <= 5.5;
+          const isBottom = y > 13 && y - 13 < 17 - Math.abs(dx * 1.1);
+          isInside = isLeftLobe || isRightLobe || isBottom;
+        } else {
+          isInside = d <= 15.5;
+        }
+        if (!isInside) continue;
+
+        const rect = `M${x},${y}h1v1h-1z `;
+        if (d <= 1.5) {
+          hole += rect;
+        } else if (d <= 5.5) {
+          if (dx + dy > 2) { label += rect; labelShadow += rect; }
+          else { label += rect; }
+        } else {
+          const isGroove = [7, 9, 11, 13, 15].some((r) => Math.abs(d - r) < 0.8);
+          const isHighlightAngle =
+            (dx + dy < -4 && dx - dy < 8 && dx - dy > -8) ||
+            (dx + dy > 6 && dx - dy < 8 && dx - dy > -8);
+          if (isGroove && isHighlightAngle) {
+            groove += rect;
+          } else if (d > 14.5 && dx + dy > 8 && !isHeart) {
+            rim += rect;
+          } else {
+            base += rect;
+          }
+        }
+      }
+    }
+    return { base, hole, label, labelShadow, groove, rim };
+  }, [isPixel, isHeart]);
 
   // Tonearm position adjusts to vinyl shape so the stylus sits on the playable surface
   const armPos = isHeart
@@ -208,52 +253,12 @@ export default function Vinyl() {
               className="w-full h-full drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]"
               style={{ imageRendering: "pixelated" }}
             >
-              {Array.from({ length: 32 }).map((_, y) =>
-                Array.from({ length: 32 }).map((_, x) => {
-                  const dx = x - 15.5;
-                  const dy = y - 15.5;
-                  const d = Math.sqrt(dx * dx + dy * dy);
-
-                  let isInside = false;
-                  if (isHeart) {
-                    const isLeftLobe = Math.sqrt((x - 10.5) ** 2 + (y - 11.5) ** 2) <= 5.5;
-                    const isRightLobe = Math.sqrt((x - 20.5) ** 2 + (y - 11.5) ** 2) <= 5.5;
-                    const isBottom = y > 13 && y - 13 < 17 - Math.abs(dx * 1.1);
-                    isInside = isLeftLobe || isRightLobe || isBottom;
-                  } else {
-                    isInside = d <= 15.5;
-                  }
-                  if (!isInside) return null;
-
-                  let fill = palette.base;
-                  if (d <= 1.5) {
-                    fill = "#ffffff";
-                  } else if (d <= 5.5) {
-                    fill = dx + dy > 2 ? "rgba(0,0,0,0.3)" : palette.label;
-                  } else {
-                    const isGroove = [7, 9, 11, 13, 15].some((r) => Math.abs(d - r) < 0.8);
-                    const isHighlightAngle =
-                      (dx + dy < -4 && dx - dy < 8 && dx - dy > -8) ||
-                      (dx + dy > 6 && dx - dy < 8 && dx - dy > -8);
-                    if (isGroove && isHighlightAngle) {
-                      fill = palette.groove;
-                    } else if (d > 14.5 && dx + dy > 8 && !isHeart) {
-                      fill = palette.rim;
-                    }
-                  }
-
-                  if (d <= 5.5 && dx + dy > 2) {
-                    return (
-                      <g key={`${x}-${y}`}>
-                        <rect x={x} y={y} width={1} height={1} fill={palette.label} />
-                        <rect x={x} y={y} width={1} height={1} fill="rgba(0,0,0,0.3)" />
-                      </g>
-                    );
-                  }
-
-                  return <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={fill} />;
-                })
-              )}
+              <path d={pixelPaths!.base} fill={palette.base} />
+              <path d={pixelPaths!.rim} fill={palette.rim} />
+              <path d={pixelPaths!.groove} fill={palette.groove} />
+              <path d={pixelPaths!.label} fill={palette.label} />
+              <path d={pixelPaths!.labelShadow} fill="rgba(0,0,0,0.3)" />
+              <path d={pixelPaths!.hole} fill="#ffffff" />
             </svg>
           </motion.div>
         ) : (
