@@ -23,6 +23,8 @@ interface PlayerState {
   vinylStyle: 'standard' | 'pixel' | 'retro' | 'holographic' | '8bit' | 'flat';
   vinylColor: string;
 
+  appTheme: 'dark' | 'light';
+
   play: (songId: string) => void;
   pause: () => void;
   resume: () => void;
@@ -31,6 +33,7 @@ interface PlayerState {
   setProgress: (value: number) => void;
   setVolume: (value: number) => void;
   setViewMode: (mode: 'ipod' | 'vinyl') => void;
+  setAppTheme: (theme: 'dark' | 'light') => void;
   setIpodColorTheme: (theme: string) => void;
   setIpodStyle: (style: PlayerState['ipodStyle']) => void;
   setIpodPixelColor: (color: string) => void;
@@ -50,6 +53,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   duration: 0,
 
   viewMode: 'ipod',
+  appTheme: 'dark',
 
   ipodColorTheme: 'silver',
   ipodStyle: 'standard',
@@ -84,6 +88,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setProgress: (value) => set({ progress: value }),
   setVolume: (value) => set({ volume: value }),
   setViewMode: (mode) => set({ viewMode: mode }),
+  setAppTheme: (theme) => set({ appTheme: theme }),
   setIpodColorTheme: (theme) => set({ ipodColorTheme: theme }),
   setIpodStyle: (style) => set({ ipodStyle: style }),
   setIpodPixelColor: (color) => set({ ipodPixelColor: color }),

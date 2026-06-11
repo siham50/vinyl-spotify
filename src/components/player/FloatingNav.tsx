@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Disc3, Music4 } from "lucide-react";
+import { Disc3, Music4, Sun, Moon } from "lucide-react";
 import { usePlayer, type View } from "@/store/playerStore";
 import { IPOD_COLORS, PIXEL_COLORS } from "./IPod";
 import { VINYL_COLORS } from "./Vinyl";
@@ -24,7 +24,7 @@ function Swatch({ active, color, onClick, ring = "#fff" }: { active: boolean; co
 }
 
 export default function FloatingNav() {
-  const { view, setView, ipod, setIpod, vinyl, setVinyl } = usePlayer();
+  const { view, setView, ipod, setIpod, vinyl, setVinyl, appTheme, toggleAppTheme } = usePlayer();
 
   return (
     <motion.div
@@ -40,8 +40,8 @@ export default function FloatingNav() {
           return (
             <motion.button key={v.id} whileTap={{ scale: 0.9 }} onClick={() => setView(v.id)}
               className="relative w-9 h-9 rounded-full flex items-center justify-center transition"
-              style={{ color: active ? "#0a0a0a" : "rgba(255,255,255,0.6)" }}>
-              {active && <motion.div layoutId="nav-pill" className="absolute inset-0 rounded-full bg-white"/>}
+              style={{ color: active ? "var(--active-icon)" : "var(--nav-muted)" }}>
+              {active && <motion.div layoutId="nav-pill" className="absolute inset-0 rounded-full" style={{ background: "var(--active-pill)" }}/>}
               <Icon className="w-4 h-4 relative z-10"/>
             </motion.button>
           );
@@ -57,7 +57,7 @@ export default function FloatingNav() {
               {(["standard","pixel"] as const).map(m => (
                 <button key={m} onClick={() => setIpod({ mode: m })}
                   className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded transition"
-                  style={{ color: ipod.mode === m ? "#fff" : "rgba(255,255,255,0.4)" }}>
+                  style={{ color: ipod.mode === m ? "var(--nav-fg)" : "var(--nav-muted)" }}>
                   {m === "pixel" ? "PIX" : "STD"}
                 </button>
               ))}
@@ -76,7 +76,7 @@ export default function FloatingNav() {
               {(["round","heart"] as const).map(s => (
                 <button key={s} onClick={() => setVinyl({ shape: s })}
                   className="text-[11px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded transition"
-                  style={{ color: vinyl.shape === s ? "#fff" : "rgba(255,255,255,0.4)" }}>{s === "round" ? "○" : "♥"}</button>
+                  style={{ color: vinyl.shape === s ? "var(--nav-fg)" : "var(--nav-muted)" }}>{s === "round" ? "○" : "♥"}</button>
               ))}
             </div>
             <div className="w-px h-5 bg-white/10"/>
@@ -84,7 +84,7 @@ export default function FloatingNav() {
               {(["standard","flat","pixel","8bit","retro"] as const).map(s => (
                 <button key={s} onClick={() => setVinyl({ style: s })}
                   className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded transition"
-                  style={{ color: vinyl.style === s ? "#fff" : "rgba(255,255,255,0.4)" }}>
+                  style={{ color: vinyl.style === s ? "var(--nav-fg)" : "var(--nav-muted)" }}>
                   {s === "standard" ? "STD" : s === "flat" ? "FLAT" : s === "pixel" ? "PIX" : s === "8bit" ? "8BT" : "COOL"}
                 </button>
               ))}
@@ -97,6 +97,27 @@ export default function FloatingNav() {
           </>
         )}
       </div>
+
+      <div className="w-px h-6 bg-white/10"/>
+
+      {/* Dark / Light mode toggle */}
+      <motion.button
+        whileTap={{ scale: 0.9 }}
+        onClick={toggleAppTheme}
+        className="relative w-9 h-9 rounded-full flex items-center justify-center transition"
+        style={{ color: "var(--nav-fg)" }}
+        title={appTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        <motion.div
+          key={appTheme}
+          initial={{ scale: 0, rotate: -90, opacity: 0 }}
+          animate={{ scale: 1, rotate: 0, opacity: 1 }}
+          exit={{ scale: 0, rotate: 90, opacity: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          {appTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </motion.div>
+      </motion.button>
     </motion.div>
   );
 }

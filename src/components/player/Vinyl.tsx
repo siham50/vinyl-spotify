@@ -462,8 +462,8 @@ export default function Vinyl() {
 
       {/* Song info */}
       <div className="text-center space-y-1">
-        <h2 className="font-display font-bold text-2xl leading-tight">{song.title}</h2>
-        <p className="text-sm text-white/60">
+        <h2 className="font-display font-bold text-2xl leading-tight" style={{ color: 'var(--fg)' }}>{song.title}</h2>
+        <p className="text-sm" style={{ color: 'var(--fg-muted)' }}>
           {song.artist} · <span className="italic">{song.album}</span>
         </p>
       </div>
@@ -471,7 +471,8 @@ export default function Vinyl() {
       {/* Progress */}
       <div className="w-full space-y-1.5">
         <div
-          className="h-1 w-full rounded-full bg-white/10 overflow-hidden cursor-pointer"
+          className="h-1 w-full rounded-full overflow-hidden cursor-pointer"
+          style={{ background: 'var(--progress-track)' }}
           onClick={(e) => {
             const r = e.currentTarget.getBoundingClientRect();
             setProgress(((e.clientX - r.left) / r.width) * song.duration);
@@ -484,7 +485,7 @@ export default function Vinyl() {
             transition={{ ease: "linear", duration: 0.4 }}
           />
         </div>
-        <div className="flex justify-between text-xs text-white/40 tabular-nums">
+        <div className="flex justify-between text-xs tabular-nums" style={{ color: 'var(--fg-subtle)' }}>
           <span>{fmt(progress)}</span>
           <span>{fmt(song.duration)}</span>
         </div>
@@ -495,7 +496,8 @@ export default function Vinyl() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={prev}
-          className="text-white/70 hover:text-white transition"
+          className="transition"
+          style={{ color: 'var(--controls-fg)' }}
         >
           <SkipBack className="w-6 h-6" fill="currentColor" />
         </motion.button>
@@ -514,7 +516,8 @@ export default function Vinyl() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={next}
-          className="text-white/70 hover:text-white transition"
+          className="transition"
+          style={{ color: 'var(--controls-fg)' }}
         >
           <SkipForward className="w-6 h-6" fill="currentColor" />
         </motion.button>
@@ -522,7 +525,7 @@ export default function Vinyl() {
 
       {/* Volume */}
       <div className="flex items-center gap-3 w-full">
-        <Volume2 className="w-4 h-4 text-white/40" />
+        <Volume2 className="w-4 h-4" style={{ color: 'var(--fg-subtle)' }} />
         <input
           type="range"
           min={0}
@@ -530,7 +533,8 @@ export default function Vinyl() {
           step={0.01}
           value={volume}
           onChange={(e) => setVolume(parseFloat(e.target.value))}
-          className="flex-1 accent-white"
+          className="flex-1"
+          style={{ accentColor: song.accent }}
         />
       </div>
     </motion.div>

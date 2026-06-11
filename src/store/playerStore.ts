@@ -20,6 +20,8 @@ export function usePlayer() {
     // ── View ────────────────────────────────────────────────────────────────
     view: store.viewMode as View,
     setView: (v: View) => store.setViewMode(v),
+    appTheme: store.appTheme,
+    toggleAppTheme: () => store.setAppTheme(store.appTheme === 'dark' ? 'light' : 'dark'),
 
     // ── iPod config ─────────────────────────────────────────────────────────
     ipod: {
