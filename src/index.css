@@ -1,0 +1,63 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@theme {
+  --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-display: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-pixel: 'Press Start 2P', ui-monospace, Consolas, monospace;
+}
+
+:root {
+  --bg: #0a0a0a;
+  --fg: #ffffff;
+  --fg-muted: rgba(255, 255, 255, 0.55);
+  --fg-subtle: rgba(255, 255, 255, 0.35);
+  --nav-bg: rgba(40, 40, 40, 0.85);
+  --nav-fg: #ffffff;
+  --nav-muted: rgba(255, 255, 255, 0.4);
+  --active-pill: #ffffff;
+  --active-icon: #0a0a0a;
+  --progress-track: rgba(255, 255, 255, 0.12);
+  --controls-fg: rgba(255, 255, 255, 0.7);
+  --controls-fg-hover: #ffffff;
+}
+
+:root[data-theme='light'] {
+  --bg: #f4f1ec;
+  --fg: #18181b;
+  --fg-muted: rgba(0, 0, 0, 0.6);
+  --fg-subtle: rgba(0, 0, 0, 0.35);
+  --nav-bg: rgba(240, 234, 220, 0.92);
+  --nav-fg: #18181b;
+  --nav-muted: rgba(0, 0, 0, 0.45);
+  --active-pill: #18181b;
+  --active-icon: #f4f1ec;
+  --progress-track: rgba(0, 0, 0, 0.12);
+  --controls-fg: rgba(0, 0, 0, 0.6);
+  --controls-fg-hover: #18181b;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--fg);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+.frosted {
+  background: var(--nav-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: background 0.4s ease;
+}
+
+:root[data-theme='light'] .frosted {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
