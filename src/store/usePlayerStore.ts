@@ -20,7 +20,7 @@ interface PlayerState {
   ipodScreen: 'menu' | 'nowPlaying';
 
   vinylShape: 'round' | 'heart';
-  vinylStyle: 'standard' | 'pixel' | 'retro' | 'holographic' | '8bit';
+  vinylStyle: 'standard' | 'pixel' | 'retro' | 'holographic' | '8bit' | 'flat';
   vinylColor: string;
 
   play: (songId: string) => void;

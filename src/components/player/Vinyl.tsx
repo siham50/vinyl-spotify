@@ -83,7 +83,8 @@ export default function Vinyl() {
   const pct = (progress / song.duration) * 100;
 
   const isHeart = vinyl.shape === "heart";
-  const isPixel = vinyl.style === "pixel"; // new flat icon style
+  const isPixel = vinyl.style === "pixel"; // new pixel art style
+  const isFlat = vinyl.style === "flat"; // old flat icon style
   const is8bit = vinyl.style === "8bit"; // old chunky-groove style (renamed)
   const isRetro = vinyl.style === "retro";
 
@@ -164,8 +165,8 @@ export default function Vinyl() {
           </svg>
         </motion.div>
 
-        {/* PIXEL/ICON style — flat illustrated tile */}
-        {isPixel ? (
+        {/* FLAT ILLUSTRATED ICON style */}
+        {isFlat ? (
           <motion.div
             className="absolute inset-0"
             animate={spinControls}
@@ -193,6 +194,65 @@ export default function Vinyl() {
                   <circle cx="256" cy="256" r="55" fill={icon.label} />
                   <circle cx="256" cy="256" r="10" fill={icon.ink} />
                 </>
+              )}
+            </svg>
+          </motion.div>
+        ) : isPixel ? (
+          <motion.div
+            className="absolute inset-0"
+            animate={spinControls}
+            style={{ originX: "50%", originY: "50%" }}
+          >
+            <svg
+              viewBox="0 0 32 32"
+              className="w-full h-full drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]"
+              style={{ imageRendering: "pixelated" }}
+            >
+              {Array.from({ length: 32 }).map((_, y) =>
+                Array.from({ length: 32 }).map((_, x) => {
+                  const dx = x - 15.5;
+                  const dy = y - 15.5;
+                  const d = Math.sqrt(dx * dx + dy * dy);
+
+                  let isInside = false;
+                  if (isHeart) {
+                    const isLeftLobe = Math.sqrt((x - 10.5) ** 2 + (y - 11.5) ** 2) <= 5.5;
+                    const isRightLobe = Math.sqrt((x - 20.5) ** 2 + (y - 11.5) ** 2) <= 5.5;
+                    const isBottom = y > 13 && y - 13 < 17 - Math.abs(dx * 1.1);
+                    isInside = isLeftLobe || isRightLobe || isBottom;
+                  } else {
+                    isInside = d <= 15.5;
+                  }
+                  if (!isInside) return null;
+
+                  let fill = palette.base;
+                  if (d <= 1.5) {
+                    fill = "#ffffff";
+                  } else if (d <= 5.5) {
+                    fill = dx + dy > 2 ? "rgba(0,0,0,0.3)" : palette.label;
+                  } else {
+                    const isGroove = [7, 9, 11, 13, 15].some((r) => Math.abs(d - r) < 0.8);
+                    const isHighlightAngle =
+                      (dx + dy < -4 && dx - dy < 8 && dx - dy > -8) ||
+                      (dx + dy > 6 && dx - dy < 8 && dx - dy > -8);
+                    if (isGroove && isHighlightAngle) {
+                      fill = palette.groove;
+                    } else if (d > 14.5 && dx + dy > 8 && !isHeart) {
+                      fill = palette.rim;
+                    }
+                  }
+
+                  if (d <= 5.5 && dx + dy > 2) {
+                    return (
+                      <g key={`${x}-${y}`}>
+                        <rect x={x} y={y} width={1} height={1} fill={palette.label} />
+                        <rect x={x} y={y} width={1} height={1} fill="rgba(0,0,0,0.3)" />
+                      </g>
+                    );
+                  }
+
+                  return <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={fill} />;
+                })
               )}
             </svg>
           </motion.div>

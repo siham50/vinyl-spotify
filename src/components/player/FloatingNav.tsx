@@ -55,10 +55,7 @@ export default function FloatingNav() {
           <>
             <div className="flex items-center gap-1">
               {(["standard","pixel"] as const).map(m => (
-                <button key={m} onClick={() => {
-                  const firstColor = m === "pixel" ? "green" : "silver";
-                  setIpod({ mode: m, color: firstColor });
-                }}
+                <button key={m} onClick={() => setIpod({ mode: m })}
                   className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded transition"
                   style={{ color: ipod.mode === m ? "#fff" : "rgba(255,255,255,0.4)" }}>
                   {m === "pixel" ? "PIX" : "STD"}
@@ -84,11 +81,11 @@ export default function FloatingNav() {
             </div>
             <div className="w-px h-5 bg-white/10"/>
             <div className="flex items-center gap-1">
-              {(["standard","pixel","8bit","retro"] as const).map(s => (
+              {(["standard","flat","pixel","8bit","retro"] as const).map(s => (
                 <button key={s} onClick={() => setVinyl({ style: s })}
                   className="text-[9px] font-bold uppercase tracking-wider px-1 py-0.5 rounded transition"
                   style={{ color: vinyl.style === s ? "#fff" : "rgba(255,255,255,0.4)" }}>
-                  {s === "standard" ? "STD" : s === "pixel" ? "PIX" : s === "8bit" ? "8BT" : "COOL"}
+                  {s === "standard" ? "STD" : s === "flat" ? "FLAT" : s === "pixel" ? "PIX" : s === "8bit" ? "8BT" : "COOL"}
                 </button>
               ))}
             </div>

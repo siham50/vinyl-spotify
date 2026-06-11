@@ -21,24 +21,28 @@ export const IPOD_COLORS: Record<string, { body: string; wheel: string; accent: 
   roseSteel: { body: "linear-gradient(135deg, #FFDBDA 0%, #DB7F8E 25%, #D5C5C8 50%, #9DA3A4 75%, #604D53 100%)", wheel: "#9DA3A4", accent: "#DB7F8E", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
 };
 
-// Authentic retro game color themes — Game Boy / SNES palette
-export const PIXEL_COLORS: Record<string, { body: string; dark: string; mid: string; text: string; screen: string; glow: string }> = {
-  green:  { body: "#1a3a1a", dark: "#0d1f0d", mid: "#2a5a2a", text: "#00FF41", screen: "#000000", glow: "rgba(0,255,65,0.4)" },
-  purple: { body: "#1a0030", dark: "#0D0014", mid: "#2a0050", text: "#CC44FF", screen: "#0D0014", glow: "rgba(204,68,255,0.4)" },
-  orange: { body: "#2a1400", dark: "#1A0800", mid: "#3a1e00", text: "#FF8C00", screen: "#1A0800", glow: "rgba(255,140,0,0.4)" },
-  blue:   { body: "#001428", dark: "#000D1A", mid: "#001e3a", text: "#00BFFF", screen: "#000D1A", glow: "rgba(0,191,255,0.4)" },
-  pink:   { body: "#280020", dark: "#1A0010", mid: "#3a0030", text: "#FF69B4", screen: "#1A0010", glow: "rgba(255,105,180,0.4)" },
-  red:    { body: "#280000", dark: "#1A0000", mid: "#3a0000", text: "#FF2222", screen: "#1A0000", glow: "rgba(255,34,34,0.4)" },
-};
+export const PIXEL_COLORS: Record<string, { body: string; dark: string; mid: string; text: string; screen: string; glow: string }> = Object.fromEntries(
+  Object.entries(IPOD_COLORS).map(([k, v]) => {
+    const isDarkLogo = v.logo === "#1a1a1a" || v.logo === "#000";
+    return [k, {
+      body: v.body,
+      dark: v.wheel.startsWith("linear") ? "#222" : v.wheel,
+      mid: v.accent.startsWith("linear") ? "#888" : v.accent,
+      text: isDarkLogo ? "#000000" : "#ffffff",
+      screen: isDarkLogo ? v.accent : "#0f0f0f",
+      glow: isDarkLogo ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.4)"
+    }];
+  })
+);
 
 export default function IPod() {
   const { ipod, playing, toggle, next, prev } = usePlayer();
   const isPixel = ipod.mode === "pixel";
-  const pix = isPixel ? PIXEL_COLORS[ipod.color] ?? PIXEL_COLORS.cobalt : null;
+  const pix = isPixel ? PIXEL_COLORS[ipod.color] ?? PIXEL_COLORS.silver : null;
   const std = !isPixel ? IPOD_COLORS[ipod.color] ?? IPOD_COLORS.silver : null;
 
   if (isPixel) {
-    const p = PIXEL_COLORS[ipod.color] ?? PIXEL_COLORS.green;
+    const p = PIXEL_COLORS[ipod.color] ?? PIXEL_COLORS.silver;
     // Pixel grid body texture — 4px squares dithered
     const gridPattern = `repeating-linear-gradient(0deg, ${p.dark} 0px, ${p.dark} 2px, transparent 2px, transparent 4px), repeating-linear-gradient(90deg, ${p.dark} 0px, ${p.dark} 2px, transparent 2px, transparent 4px)`;
     // Scanline overlay for the screen
