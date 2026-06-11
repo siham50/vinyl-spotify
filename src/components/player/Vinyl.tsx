@@ -410,25 +410,34 @@ export default function Vinyl() {
                 stroke="rgba(0,0,0,0.25)"
                 strokeWidth="1.5"
               />
+              
+              {/* Album Art (60px diameter) */}
               <image
                 href={song.art}
-                x="186"
+                x="226"
                 y="186"
-                width="140"
-                height="140"
-                clipPath="circle(70px at 70px 70px)"
+                width="60"
+                height="60"
+                style={{ clipPath: "circle(50% at 50% 50%)" }}
                 preserveAspectRatio="xMidYMid slice"
-                opacity={0.9}
+                opacity={0.95}
               />
-              <circle
-                cx="256"
-                cy="256"
-                r="82"
-                fill="none"
-                stroke="rgba(0,0,0,0.15)"
-                strokeWidth="3"
-              />
+              
+              {/* Center hole */}
               <circle cx="256" cy="256" r="4" fill="#0a0a0a" />
+
+              {/* Song Info */}
+              <text x="256" y="278" textAnchor="middle" fill={palette.base} fontSize="11" fontWeight="bold" fontFamily="var(--font-sans)">
+                {song.title}
+              </text>
+              <text x="256" y="292" textAnchor="middle" fill={palette.base} fontSize="8" fontFamily="var(--font-sans)" opacity="0.8">
+                {song.artist}
+              </text>
+
+              {/* VinyPod Logo */}
+              <text x="256" y="320" textAnchor="middle" fill={palette.base} fontSize="6" fontWeight="900" fontFamily="var(--font-display)" letterSpacing="1.5" opacity="0.6">
+                VINYPOD
+              </text>
             </svg>
           </motion.div>
         )}
