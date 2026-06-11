@@ -90,19 +90,7 @@ export default function Vinyl() {
 
   const grooves = Array.from({ length: is8bit ? 8 : 28 }, (_, i) => 60 + i * 6.5);
 
-  // Shared animation controls — guarantees true infinite spin
-  const spinControls = useAnimation();
-  
-  useEffect(() => {
-    if (playing) {
-      spinControls.start({
-        rotate: 360,
-        transition: { duration: 4, ease: "linear", repeat: Infinity },
-      });
-    } else {
-      spinControls.stop();
-    }
-  }, [playing, spinControls]);
+  // We will use CSS animations for a perfectly fluid, interruptible infinite spin.
 
   const pixelPaths = useMemo(() => {
     if (!isPixel) return null;
@@ -212,10 +200,9 @@ export default function Vinyl() {
 
         {/* FLAT ILLUSTRATED ICON style */}
         {isFlat ? (
-          <motion.div
-            className="absolute inset-0"
-            animate={spinControls}
-            style={{ originX: "50%", originY: "50%" }}
+          <div
+            className="absolute inset-0 animate-spin"
+            style={{ animationDuration: "4s", animationPlayState: playing ? "running" : "paused" }}
           >
             <svg
               viewBox="0 0 512 512"
@@ -241,12 +228,11 @@ export default function Vinyl() {
                 </>
               )}
             </svg>
-          </motion.div>
+          </div>
         ) : isPixel ? (
-          <motion.div
-            className="absolute inset-0"
-            animate={spinControls}
-            style={{ originX: "50%", originY: "50%" }}
+          <div
+            className="absolute inset-0 animate-spin"
+            style={{ animationDuration: "4s", animationPlayState: playing ? "running" : "paused" }}
           >
             <svg
               viewBox="0 0 32 32"
@@ -260,12 +246,11 @@ export default function Vinyl() {
               <path d={pixelPaths!.labelShadow} fill="rgba(0,0,0,0.3)" />
               <path d={pixelPaths!.hole} fill="#ffffff" />
             </svg>
-          </motion.div>
+          </div>
         ) : (
-          <motion.div
-            className="absolute inset-0"
-            animate={spinControls}
-            style={{ originX: "50%", originY: "50%" }}
+          <div
+            className="absolute inset-0 animate-spin"
+            style={{ animationDuration: "4s", animationPlayState: playing ? "running" : "paused" }}
           >
             <svg
               viewBox="0 0 512 512"
@@ -439,7 +424,7 @@ export default function Vinyl() {
                 VINYPOD
               </text>
             </svg>
-          </motion.div>
+          </div>
         )}
       </div>
 
