@@ -528,14 +528,14 @@ export default function Vinyl() {
             className="h-full rounded-full absolute top-0 left-0"
             style={{ background: uiColor }}
             animate={{ width: `${pct}%` }}
-            transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+            transition={{ ease: "easeOut", duration: 0.25 }}
           />
           {/* Thumb */}
           <motion.div
             className="w-2.5 h-2.5 rounded-full absolute top-1/2 -translate-y-1/2 -ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
             style={{ background: uiColor }}
             animate={{ left: `${pct}%` }}
-            transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+            transition={{ ease: "easeOut", duration: 0.25 }}
           />
         </div>
         <div className="flex justify-between text-xs tabular-nums" style={{ color: 'var(--fg-subtle)' }}>

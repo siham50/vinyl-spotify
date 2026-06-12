@@ -211,14 +211,14 @@ export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
               className="h-full rounded-full absolute top-0 left-0"
               style={{ background: song.accent }}
               animate={{ width: `${pct}%` }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              transition={{ ease: "easeOut", duration: 0.25 }}
             />
             {/* Thumb */}
             <motion.div
               className="w-[6px] h-[6px] rounded-full absolute top-1/2 -translate-y-1/2 -ml-[3px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
               style={{ background: song.accent }}
               animate={{ left: `${pct}%` }}
-              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
+              transition={{ ease: "easeOut", duration: 0.25 }}
             />
           </div>
           <div className="flex justify-between text-[9px] text-white/50 font-medium tabular-nums">

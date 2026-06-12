@@ -28,6 +28,7 @@ export function useAudio() {
   const howlRef = useRef<Howl | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isSeekingRef = useRef(false);
+  const expectedSeekRef = useRef<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
@@ -59,6 +60,16 @@ export function useAudio() {
       // howler.seek() returns Howl if called without args, but we know it's a number here
       // when no arguments are passed.
       const currentSeek = howl.seek() as number;
+      
+      // If we are waiting for a seek to complete and the time is still wildly off, it's a stale read (buffering)
+      if (expectedSeekRef.current !== null) {
+        if (Math.abs(currentSeek - expectedSeekRef.current) > 2) {
+          return; // Ignore stale time
+        } else {
+          expectedSeekRef.current = null; // Reached expected time!
+        }
+      }
+
       const dur = howl.duration() as number;
       if (dur > 0) {
         setCurrentTime(currentSeek);
@@ -170,6 +181,7 @@ export function useAudio() {
     const dur = howl.duration() as number;
     if (dur > 0) {
       isSeekingRef.current = true;
+      expectedSeekRef.current = targetSeconds;
       howl.seek(targetSeconds);
       setCurrentTime(targetSeconds);
       setProgress(targetSeconds / dur);
