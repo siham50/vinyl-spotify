@@ -20,6 +20,36 @@ export function Equalizer({ color = "#fff", playing = true }: { color?: string; 
   );
 }
 
+// 5-bar Framer Motion visualizer for the standard iPod screen
+const HEIGHTS = [
+  [4, 15, 8, 20, 6, 18, 5, 12, 4],
+  [4, 12, 18, 5, 14, 7, 20, 8, 4],
+  [4, 8, 20, 12, 16, 5, 10, 15, 4],
+  [4, 18, 6, 14, 20, 8, 15, 5, 4],
+  [4, 10, 15, 8, 20, 12, 6, 18, 4]
+];
+
+export function FramerEqualizer({ playing }: { playing: boolean }) {
+  return (
+    <div className="absolute bottom-[28px] right-2.5 flex items-end gap-[3px] h-[20px]">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <motion.div
+          key={i}
+          className="w-[3px] bg-green-500 rounded-t-[2px]"
+          initial={{ height: 4 }}
+          animate={playing ? { height: HEIGHTS[i] } : { height: 4 }}
+          transition={playing ? {
+            repeat: Infinity,
+            duration: 1.5,
+            ease: "easeInOut",
+            delay: i * 0.15,
+          } : { duration: 0.4 }}
+        />
+      ))}
+    </div>
+  );
+}
+
 // Pixel equalizer: 4 columns of 4x4px squares that animate up/down
 function PixelEqualizer({ color, glow, playing }: { color: string; glow: string; playing: boolean }) {
   const heights = [3, 5, 4, 6]; // max pixel heights per column
@@ -133,11 +163,10 @@ export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
         <img src={song.art} alt={song.album} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
       </div>
-      <div className="flex-1 px-2.5 py-1.5 flex flex-col justify-between min-h-0 gap-1">
+      <div className="flex-1 px-2.5 py-1.5 flex flex-col justify-between min-h-0 gap-1 relative">
         <div className="space-y-0.5 min-w-0">
           <div className="flex items-center gap-1.5">
             <div className="font-display font-bold text-[12px] truncate flex-1 leading-tight">{song.title}</div>
-            <Equalizer color={song.accent} playing={playing} />
           </div>
           <div className="text-[10px] text-white/70 truncate leading-tight">{song.artist}</div>
           <div className="text-[9px] text-white/40 truncate leading-tight">{song.album}</div>
@@ -155,6 +184,7 @@ export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
             <span>{fmt(progress)}</span><span>-{fmt(song.duration - progress)}</span>
           </div>
         </div>
+        <FramerEqualizer playing={playing} />
       </div>
     </div>
   );
