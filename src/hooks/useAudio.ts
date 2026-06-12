@@ -22,10 +22,12 @@ export function useAudio() {
     setProgress,
     nextSong,
     play,
+    setSeekAudio,
   } = usePlayerStore();
 
   const howlRef = useRef<Howl | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isSeekingRef = useRef(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
@@ -51,24 +53,21 @@ export function useAudio() {
   function startProgressTick(howl: Howl) {
     stopInterval();
     intervalRef.current = setInterval(() => {
+      if (isSeekingRef.current) return;
       if (!howl.playing()) return;
-      const seek = howl.seek() as number;
+      
+      // howler.seek() returns Howl if called without args, but we know it's a number here
+      // when no arguments are passed.
+      const currentSeek = howl.seek() as number;
       const dur = howl.duration() as number;
       if (dur > 0) {
-        setCurrentTime(seek);
-        setProgress(seek / dur);
+        setCurrentTime(currentSeek);
+        setProgress(currentSeek / dur);
       }
     }, 500);
   }
 
-  // ── Auto-play first song on first mount if nothing is selected ───────────
-  useEffect(() => {
-    if (!currentSongId && songs.length > 0) {
-      play(songs[0].id);
-    }
-    // only on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Removed auto-play so the Empty State is shown initially.
 
   // ── Rebuild Howl when the current song changes ────────────────────────────
   useEffect(() => {
@@ -79,7 +78,8 @@ export function useAudio() {
     const song = songs.find((s) => s.id === currentSongId);
     if (!song) return;
 
-    // Gracefully skip tracks with no audio source
+    // Gracefully handle tracks with no audio source by doing nothing with Howler
+    // A separate useEffect will handle mock playback for these
     if (!song.src) {
       setDuration(song.duration ?? 0);
       setCurrentTime(0);
@@ -98,6 +98,10 @@ export function useAudio() {
       onend() {
         stopInterval();
         nextSong();
+      },
+      onseek() {
+        // Clear the seeking lock once HTML5 audio has successfully seeked
+        isSeekingRef.current = false;
       },
       onloaderror(_id, err) {
         console.warn('[useAudio] load error:', err);
@@ -149,18 +153,66 @@ export function useAudio() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── seek helper (0–1 fraction) ────────────────────────────────────────────
-  function seek(value: number) {
+  // ── seek helper (seconds) ────────────────────────────────────────────
+  function seek(targetSeconds: number) {
     const howl = howlRef.current;
-    if (!howl) return;
+    
+    // If no howl is loaded (e.g., missing src), just update the store state directly
+    if (!howl) {
+      const state = usePlayerStore.getState();
+      const song = state.songs.find((s) => s.id === state.currentSongId);
+      const dur = song?.duration || 1;
+      setCurrentTime(targetSeconds);
+      setProgress(targetSeconds / dur);
+      return;
+    }
+
     const dur = howl.duration() as number;
     if (dur > 0) {
-      const targetSeconds = value * dur;
+      isSeekingRef.current = true;
       howl.seek(targetSeconds);
       setCurrentTime(targetSeconds);
-      setProgress(value);
+      setProgress(targetSeconds / dur);
+      
+      // Fallback in case onseek doesn't fire (e.g. if already at that position)
+      setTimeout(() => {
+        isSeekingRef.current = false;
+      }, 1500);
     }
   }
+
+  // ── Mock playback for songs without audio ────────────────────────────
+  useEffect(() => {
+    const song = songs.find((s) => s.id === currentSongId);
+    // Only mock if there's no src
+    if (!song || song.src || !isPlaying) {
+      if (!song || song.src) {
+        // If it has src, we don't mock it. But make sure we don't leak interval.
+        // Wait, startProgressTick handles howl. We only stop our own interval if we had one.
+      }
+      return;
+    }
+
+    const dur = song.duration || 1;
+    const interval = setInterval(() => {
+      usePlayerStore.setState((state) => {
+        let newProgress = state.progress + 0.5 / dur;
+        if (newProgress >= 1) {
+          newProgress = 0;
+          setTimeout(() => nextSong(), 0);
+        }
+        setCurrentTime(newProgress * dur);
+        return { progress: newProgress };
+      });
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, currentSongId, songs, nextSong]);
+
+  // ── Register seek to store ─────────────────────────────────────────────
+  useEffect(() => {
+    setSeekAudio(seek);
+  }, [setSeekAudio]);
 
   return { currentTime, duration, seek };
 }

@@ -43,6 +43,9 @@ interface PlayerState {
   setVinylShape: (shape: PlayerState['vinylShape']) => void;
   setVinylStyle: (style: PlayerState['vinylStyle']) => void;
   setVinylColor: (color: string) => void;
+
+  seekAudio: ((seconds: number) => void) | null;
+  setSeekAudio: (fn: (seconds: number) => void) => void;
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -100,4 +103,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setVinylShape: (shape) => set({ vinylShape: shape }),
   setVinylStyle: (style) => set({ vinylStyle: style }),
   setVinylColor: (color) => set({ vinylColor: color }),
+
+  seekAudio: null,
+  setSeekAudio: (fn) => set({ seekAudio: fn }),
 }));

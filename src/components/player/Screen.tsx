@@ -132,13 +132,20 @@ export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
 
         {/* Progress bar made of pixel squares */}
         <div style={{ fontSize: 5, opacity: 0.6 }}>{fmt(song.duration - progress)} LEFT</div>
-        <div style={{
-          height: 8, width: "100%",
-          background: `${text}22`,
-          boxShadow: `inset 0 0 0 1px ${text}44`,
-          position: "relative",
-          imageRendering: "pixelated",
-        }}>
+        <div 
+          style={{
+            height: 8, width: "100%",
+            background: `${text}22`,
+            boxShadow: `inset 0 0 0 1px ${text}44`,
+            position: "relative",
+            imageRendering: "pixelated",
+            cursor: "pointer"
+          }}
+          onClick={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            setProgress(((e.clientX - r.left) / r.width) * song.duration);
+          }}
+        >
           {/* Chunky pixel progress blocks */}
           <div style={{
             position: "absolute", top: 0, left: 0, bottom: 0,
@@ -204,14 +211,14 @@ export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
               className="h-full rounded-full absolute top-0 left-0"
               style={{ background: song.accent }}
               animate={{ width: `${pct}%` }}
-              transition={{ ease: "linear", duration: 0.5 }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
             />
             {/* Thumb */}
             <motion.div
               className="w-[6px] h-[6px] rounded-full absolute top-1/2 -translate-y-1/2 -ml-[3px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
               style={{ background: song.accent }}
               animate={{ left: `${pct}%` }}
-              transition={{ ease: "linear", duration: 0.5 }}
+              transition={{ type: "spring", bounce: 0, duration: 0.5 }}
             />
           </div>
           <div className="flex justify-between text-[9px] text-white/50 font-medium tabular-nums">
