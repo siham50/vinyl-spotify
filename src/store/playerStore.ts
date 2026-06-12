@@ -24,6 +24,7 @@ export function usePlayer() {
     toggleAppTheme: () => store.setAppTheme(store.appTheme === 'dark' ? 'light' : 'dark'),
     showShortcuts: store.showShortcuts,
     setShowShortcuts: store.setShowShortcuts,
+    currentSongId: store.currentSongId,
 
     // ── iPod config ─────────────────────────────────────────────────────────
     ipod: {

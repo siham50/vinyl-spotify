@@ -1,5 +1,5 @@
 import { motion, useAnimation } from "framer-motion";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { usePlayer } from "@/store/playerStore";
 import { songs, fmt } from "@/lib/songs";
@@ -79,6 +79,7 @@ export default function Vinyl() {
   const song = songs[index];
   const spinControls = useAnimation();
   const isMounted = useRef(false);
+  const [hoverPct, setHoverPct] = useState<number | null>(null);
 
   useEffect(() => {
     if (isMounted.current) {
@@ -495,19 +496,45 @@ export default function Vinyl() {
       </div>
 
       {/* Progress */}
-      <div className="w-full space-y-1.5">
+      <div className="w-full space-y-1.5 relative group">
+        {/* Tooltip */}
+        {hoverPct !== null && (
+          <div
+            className="absolute -top-7 text-[10px] px-1.5 py-0.5 rounded shadow-lg pointer-events-none transform -translate-x-1/2 z-10"
+            style={{ 
+              left: `${hoverPct * 100}%`,
+              background: 'var(--fg)',
+              color: 'var(--bg)'
+            }}
+          >
+            {fmt(hoverPct * song.duration)}
+          </div>
+        )}
         <div
-          className="h-1 w-full rounded-full overflow-hidden cursor-pointer"
+          className="h-1.5 w-full rounded-full cursor-pointer relative overflow-visible"
           style={{ background: 'var(--progress-track)' }}
+          onMouseMove={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            setHoverPct(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+          }}
+          onMouseLeave={() => setHoverPct(null)}
           onClick={(e) => {
             const r = e.currentTarget.getBoundingClientRect();
             setProgress(((e.clientX - r.left) / r.width) * song.duration);
           }}
         >
+          {/* Fill */}
           <motion.div
-            className="h-full rounded-full"
+            className="h-full rounded-full absolute top-0 left-0"
             style={{ background: uiColor }}
             animate={{ width: `${pct}%` }}
+            transition={{ ease: "linear", duration: 0.4 }}
+          />
+          {/* Thumb */}
+          <motion.div
+            className="w-2.5 h-2.5 rounded-full absolute top-1/2 -translate-y-1/2 -ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+            style={{ background: uiColor }}
+            animate={{ left: `${pct}%` }}
             transition={{ ease: "linear", duration: 0.4 }}
           />
         </div>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { songs, fmt } from "@/lib/songs";
 import { usePlayer } from "@/store/playerStore";
@@ -83,7 +84,8 @@ function PixelEqualizer({ color, glow, playing }: { color: string; glow: string;
 type PixelTheme = { text: string; screen: string; glow: string };
 
 export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
-  const { index, progress, playing } = usePlayer();
+  const { index, progress, playing, setProgress } = usePlayer();
+  const [hoverPct, setHoverPct] = useState<number | null>(null);
   const song = songs[index];
   const pct = (progress / song.duration) * 100;
 
@@ -171,12 +173,44 @@ export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
           <div className="text-[10px] text-white/70 truncate leading-tight">{song.artist}</div>
           <div className="text-[9px] text-white/40 truncate leading-tight">{song.album}</div>
         </div>
-        <div className="space-y-1">
-          <div className="h-[3px] w-full rounded-full bg-white/15 overflow-hidden">
+        <div className="space-y-1 relative group">
+          {/* Tooltip */}
+          {hoverPct !== null && (
+            <div
+              className="absolute -top-5 text-[8px] px-1 py-0.5 rounded shadow-lg pointer-events-none transform -translate-x-1/2 z-10"
+              style={{
+                left: `${hoverPct * 100}%`,
+                background: 'rgba(255, 255, 255, 0.9)',
+                color: 'black'
+              }}
+            >
+              {fmt(hoverPct * song.duration)}
+            </div>
+          )}
+          <div 
+            className="h-[4px] w-full rounded-full bg-white/15 cursor-pointer relative overflow-visible"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              setHoverPct(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+            }}
+            onMouseLeave={() => setHoverPct(null)}
+            onClick={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              setProgress(((e.clientX - r.left) / r.width) * song.duration);
+            }}
+          >
+            {/* Fill */}
             <motion.div
-              className="h-full rounded-full"
+              className="h-full rounded-full absolute top-0 left-0"
               style={{ background: song.accent }}
               animate={{ width: `${pct}%` }}
+              transition={{ ease: "linear", duration: 0.5 }}
+            />
+            {/* Thumb */}
+            <motion.div
+              className="w-[6px] h-[6px] rounded-full absolute top-1/2 -translate-y-1/2 -ml-[3px] opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+              style={{ background: song.accent }}
+              animate={{ left: `${pct}%` }}
               transition={{ ease: "linear", duration: 0.5 }}
             />
           </div>
