@@ -75,7 +75,7 @@ const HEART_PATH =
   "M256 460 C 80 360, -40 220, 60 110 C 130 30, 230 60, 256 140 C 282 60, 382 30, 452 110 C 552 220, 432 360, 256 460 Z";
 
 export default function Vinyl() {
-  const { playing, toggle, next, prev, progress, setProgress, vinyl, index, volume, setVolume } = usePlayer();
+  const { playing, toggle, next, prev, progress, setProgress, vinyl, index, volume, setVolume, appTheme } = usePlayer();
   const song = songs[index];
   const spinControls = useAnimation();
   const isMounted = useRef(false);
@@ -100,6 +100,19 @@ export default function Vinyl() {
   const isFlat = vinyl.style === "flat"; // old flat icon style
   const is8bit = vinyl.style === "8bit"; // old chunky-groove style (renamed)
   const isRetro = vinyl.style === "retro";
+  const isHolo = vinyl.style === "holographic";
+
+  let uiColor = icon.tile;
+  let btnText = "#ffffff";
+  if (vinyl.color === 'black') {
+    uiColor = appTheme === 'dark' ? '#ffffff' : '#18181b';
+    btnText = appTheme === 'dark' ? '#000000' : '#ffffff';
+  } else if (vinyl.color === 'pearl') {
+    uiColor = appTheme === 'dark' ? '#e5e5e5' : '#18181b';
+    btnText = appTheme === 'dark' ? '#000000' : '#ffffff';
+  } else if (['sunflowerGold', 'honeydew', 'vanillaCustard', 'ocean', 'periwinkle'].includes(vinyl.color)) {
+    btnText = '#000000';
+  }
 
   const grooves = Array.from({ length: is8bit ? 8 : 28 }, (_, i) => 60 + i * 6.5);
 
@@ -493,7 +506,7 @@ export default function Vinyl() {
         >
           <motion.div
             className="h-full rounded-full"
-            style={{ background: song.accent }}
+            style={{ background: uiColor }}
             animate={{ width: `${pct}%` }}
             transition={{ ease: "linear", duration: 0.4 }}
           />
@@ -517,8 +530,8 @@ export default function Vinyl() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={toggle}
-          className="w-14 h-14 rounded-full flex items-center justify-center text-black"
-          style={{ background: song.accent, boxShadow: `0 8px 30px ${song.accent}66` }}
+          className="w-14 h-14 rounded-full flex items-center justify-center"
+          style={{ background: uiColor, color: btnText, boxShadow: `0 8px 30px ${uiColor}66` }}
         >
           {playing ? (
             <Pause className="w-6 h-6" fill="currentColor" />
@@ -547,7 +560,7 @@ export default function Vinyl() {
           value={volume}
           onChange={(e) => setVolume(parseFloat(e.target.value))}
           className="flex-1"
-          style={{ accentColor: song.accent }}
+          style={{ accentColor: uiColor }}
         />
       </div>
     </motion.div>
