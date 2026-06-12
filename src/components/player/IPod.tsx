@@ -88,10 +88,9 @@ export default function IPod() {
 
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.94 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.94 }}
-        transition={{ duration: 0.3 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1, transition: { duration: 0.3 } }}
+        exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
         className="relative select-none"
         style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.6))" }}
       >
@@ -150,10 +149,9 @@ export default function IPod() {
   // Standard skeuomorphic mode — 3D depth, lighter TL, darker BR
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1, transition: { duration: 0.3 } }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
       className="relative"
       style={{
         width: 280, height: 470, borderRadius: 32,

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import IPod from './components/player/IPod';
 import Vinyl from './components/player/Vinyl';
 import FloatingNav from './components/player/FloatingNav';
@@ -19,7 +20,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden" style={{ background: 'var(--bg)', transition: 'background 0.4s ease' }}>
-      {viewMode === 'ipod' ? <IPod /> : <Vinyl />}
+      <AnimatePresence mode="wait">
+        {viewMode === 'ipod' ? <IPod key="ipod" /> : <Vinyl key="vinyl" />}
+      </AnimatePresence>
       <FloatingNav />
       <ShortcutsOverlay />
     </div>
