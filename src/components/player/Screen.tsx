@@ -173,15 +173,19 @@ export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
 
   return (
     <div className="w-full h-full bg-gradient-to-b from-neutral-900 to-black text-white flex flex-col">
-      <div className="relative w-full overflow-hidden shrink-0" style={{ height: 96 }}>
-        <img src={song.cover} alt={song.album} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+      {/* Album art — square, full cover, no cropping */}
+      <div className="relative w-full shrink-0 flex items-center justify-center" style={{ height: 120, background: '#111' }}>
+        <img
+          src={song.cover}
+          alt={song.album}
+          className="h-full w-full"
+          style={{ objectFit: 'contain' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       </div>
-      <div className="flex-1 px-2.5 py-1.5 flex flex-col justify-between min-h-0 gap-1 relative">
+      <div className="flex-1 px-2.5 py-1 flex flex-col justify-between min-h-0 gap-0.5 relative">
         <div className="space-y-0.5 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <div className="font-display font-bold text-[12px] truncate flex-1 leading-tight">{song.title}</div>
-          </div>
+          <div className="font-display font-bold text-[12px] truncate leading-tight">{song.title}</div>
           <div className="text-[10px] text-white/70 truncate leading-tight">{song.artist}</div>
           <div className="text-[9px] text-white/40 truncate leading-tight">{song.album}</div>
         </div>
