@@ -1,5 +1,5 @@
 import { motion, useAnimation } from "framer-motion";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { usePlayer } from "@/store/playerStore";
 import { songs, fmt } from "@/lib/songs";
@@ -75,9 +75,22 @@ const HEART_PATH =
   "M256 460 C 80 360, -40 220, 60 110 C 130 30, 230 60, 256 140 C 282 60, 382 30, 452 110 C 552 220, 432 360, 256 460 Z";
 
 export default function Vinyl() {
-  const { vinyl, index, progress, playing, next, prev, toggle, setProgress, volume, setVolume } =
-    usePlayer();
+  const { playing, toggle, next, prev, progress, setProgress, vinyl, index, volume, setVolume } = usePlayer();
   const song = songs[index];
+  const spinControls = useAnimation();
+  const isMounted = useRef(false);
+
+  useEffect(() => {
+    if (isMounted.current) {
+      spinControls.start({
+        rotate: [0, 360],
+        transition: { duration: 0.6, ease: "easeInOut" }
+      });
+    } else {
+      isMounted.current = true;
+    }
+  }, [index, spinControls]);
+
   const palette = VINYL_COLORS[vinyl.color] ?? VINYL_COLORS.black;
   const icon = ICON_COLORS[vinyl.color] ?? ICON_COLORS.black;
   const pct = (progress / song.duration) * 100;
@@ -89,8 +102,6 @@ export default function Vinyl() {
   const isRetro = vinyl.style === "retro";
 
   const grooves = Array.from({ length: is8bit ? 8 : 28 }, (_, i) => 60 + i * 6.5);
-
-  // We will use CSS animations for a perfectly fluid, interruptible infinite spin.
 
   const PIXEL_HEART_MAP = [
     '00000000000000000000000000000000',
@@ -229,8 +240,10 @@ export default function Vinyl() {
           </svg>
         </motion.div>
 
-        {/* FLAT ILLUSTRATED ICON style */}
-        {isFlat ? (
+        {/* Vinyl Disc Wrapper for Speedup Animation */}
+        <motion.div animate={spinControls} className="absolute inset-0">
+          {/* FLAT ILLUSTRATED ICON style */}
+          {isFlat ? (
           <div
             className="absolute inset-0 animate-spin"
             style={{ animationDuration: "4s", animationPlayState: playing ? "running" : "paused" }}
@@ -457,6 +470,7 @@ export default function Vinyl() {
             </svg>
           </div>
         )}
+        </motion.div>
       </div>
 
       {/* Song info */}
