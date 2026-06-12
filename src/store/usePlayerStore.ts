@@ -24,6 +24,7 @@ interface PlayerState {
   vinylColor: string;
 
   appTheme: 'dark' | 'light';
+  showShortcuts: boolean;
 
   play: (songId: string) => void;
   pause: () => void;
@@ -34,6 +35,7 @@ interface PlayerState {
   setVolume: (value: number) => void;
   setViewMode: (mode: 'ipod' | 'vinyl') => void;
   setAppTheme: (theme: 'dark' | 'light') => void;
+  setShowShortcuts: (show: boolean) => void;
   setIpodColorTheme: (theme: string) => void;
   setIpodStyle: (style: PlayerState['ipodStyle']) => void;
   setIpodPixelColor: (color: string) => void;
@@ -54,6 +56,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
   viewMode: 'ipod',
   appTheme: 'dark',
+  showShortcuts: false,
 
   ipodColorTheme: 'silver',
   ipodStyle: 'standard',
@@ -89,6 +92,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setVolume: (value) => set({ volume: value }),
   setViewMode: (mode) => set({ viewMode: mode }),
   setAppTheme: (theme) => set({ appTheme: theme }),
+  setShowShortcuts: (show) => set({ showShortcuts: show }),
   setIpodColorTheme: (theme) => set({ ipodColorTheme: theme }),
   setIpodStyle: (style) => set({ ipodStyle: style }),
   setIpodPixelColor: (color) => set({ ipodPixelColor: color }),

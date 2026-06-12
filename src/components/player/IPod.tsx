@@ -13,9 +13,9 @@ const isLight = (hex: string) => {
 
 const BASE_IPOD_COLORS: Record<string, { body: string; wheel: string; accent: string; shadow: string; logo: string }> = {
   silver: { body: "#C8C8C8", wheel: "#B0B0B0", accent: "#E8E8E8", shadow: "rgba(0,0,0,0.25)", logo: "#1a1a1a" },
-  black:  { body: "#1a1a1a", wheel: "#111111", accent: "#2a2a2a", shadow: "rgba(0,0,0,0.8)", logo: "#ffffff" },
-  pink:   { body: "#F4A7C3", wheel: "#E8849F", accent: "#FCC8D8", shadow: "rgba(0,0,0,0.2)", logo: "#1a1a1a" },
-  blue:   { body: "#4A90D9", wheel: "#2E6DB4", accent: "#6AAEE8", shadow: "rgba(0,0,0,0.3)", logo: "#ffffff" },
+  black: { body: "#1a1a1a", wheel: "#111111", accent: "#2a2a2a", shadow: "rgba(0,0,0,0.8)", logo: "#ffffff" },
+  pink: { body: "#F4A7C3", wheel: "#E8849F", accent: "#FCC8D8", shadow: "rgba(0,0,0,0.2)", logo: "#1a1a1a" },
+  blue: { body: "#4A90D9", wheel: "#2E6DB4", accent: "#6AAEE8", shadow: "rgba(0,0,0,0.3)", logo: "#ffffff" },
   purple: { body: "#7D3C98", wheel: "#6C3483", accent: "#9B59B6", shadow: "rgba(0,0,0,0.4)", logo: "#ffffff" },
   burgundy: { body: "#6A1B31", wheel: "#4B1323", accent: "#8B2340", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
   ocean: { body: "linear-gradient(135deg, #F2FFF6 0%, #CAFFDE 25%, #25C5E9 50%, #238689 75%, #021225 100%)", wheel: "#238689", accent: "#CAFFDE", shadow: "rgba(0,0,0,0.5)", logo: "#ffffff" },
@@ -128,11 +128,11 @@ export default function IPod() {
               </svg>
 
               {/* Navigation labels */}
-              <button onClick={() => {}} className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-14 flex items-center justify-center font-pixel text-[10px]" style={{ color: p.body, filter: "brightness(0.6)" }}>MENU</button>
+              <button onClick={() => { }} className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-14 flex items-center justify-center font-pixel text-[10px]" style={{ color: p.body, filter: "brightness(0.6)" }}>MENU</button>
               <button onClick={next} className="absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 flex items-center justify-center font-pixel text-[10px]" style={{ color: p.body, filter: "brightness(0.6)" }}>{`>>|`}</button>
               <button onClick={prev} className="absolute left-0 top-1/2 -translate-y-1/2 w-14 h-14 flex items-center justify-center font-pixel text-[10px]" style={{ color: p.body, filter: "brightness(0.6)" }}>{`|<<`}</button>
               <button onClick={toggle} className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-14 flex items-center justify-center font-pixel text-[10px]" style={{ color: p.body, filter: "brightness(0.6)" }}>{playing ? `||` : `>||`}</button>
-              
+
               {/* Center select button hit area */}
               <motion.button
                 whileTap={{ scale: 0.9 }}
@@ -214,7 +214,7 @@ export default function IPod() {
       </div>
 
       {/* VinyPod Logo */}
-      <div 
+      <div
         className="absolute bottom-4 left-1/2 -translate-x-1/2 font-display font-bold text-[10px] tracking-widest opacity-80"
         style={{ color: std!.logo, transition: "all 400ms ease" }}
       >

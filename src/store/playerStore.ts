@@ -22,6 +22,8 @@ export function usePlayer() {
     setView: (v: View) => store.setViewMode(v),
     appTheme: store.appTheme,
     toggleAppTheme: () => store.setAppTheme(store.appTheme === 'dark' ? 'light' : 'dark'),
+    showShortcuts: store.showShortcuts,
+    setShowShortcuts: store.setShowShortcuts,
 
     // ── iPod config ─────────────────────────────────────────────────────────
     ipod: {
