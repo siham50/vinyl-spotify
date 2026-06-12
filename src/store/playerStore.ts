@@ -77,9 +77,10 @@ export function usePlayer() {
     /** setProgress accepts an absolute seconds value (legacy API) */
     setProgress: (seconds: number) => {
       const dur = songs[safeIndex]?.duration ?? 1;
-      store.setProgress(Math.min(1, Math.max(0, seconds / dur)));
-      if (store.seekAudio) {
-        store.seekAudio(seconds);
+      usePlayerStore.getState().setProgress(Math.min(1, Math.max(0, seconds / dur)));
+      const seekFn = usePlayerStore.getState().seekAudio;
+      if (seekFn) {
+        seekFn(seconds);
       }
     },
     setVolume: store.setVolume,

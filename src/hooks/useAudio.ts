@@ -92,7 +92,8 @@ export function useAudio() {
     // Gracefully handle tracks with no audio source by doing nothing with Howler
     // A separate useEffect will handle mock playback for these
     if (!song.src) {
-      if (!usePlayerStore.getState().isAuthenticated) {
+      const isSpotifyTrack = currentSongId && currentSongId.length > 5;
+      if (!isSpotifyTrack) {
         setDuration(song.duration ?? 0);
         setCurrentTime(0);
       }
@@ -198,8 +199,8 @@ export function useAudio() {
   // ── Mock playback for songs without audio ────────────────────────────
   useEffect(() => {
     const song = songs.find((s) => s.id === currentSongId);
-    const isAuthenticated = usePlayerStore.getState().isAuthenticated;
-    if (!song || song.src || !isPlaying || isAuthenticated) return;
+    const isSpotifyTrack = currentSongId && currentSongId.length > 5;
+    if (!song || song.src || !isPlaying || isSpotifyTrack) return;
 
     const dur = song.duration || 1;
     const interval = setInterval(() => {

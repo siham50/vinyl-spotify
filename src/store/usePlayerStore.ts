@@ -48,6 +48,8 @@ interface PlayerState {
 
   seekAudio: ((seconds: number) => void) | null;
   setSeekAudio: (fn: (seconds: number) => void) => void;
+  spotifySeek: ((seconds: number) => void) | null;
+  setSpotifySeek: (fn: (seconds: number) => void) => void;
 
   isAuthenticated: boolean;
   accessToken: string | null;
@@ -123,6 +125,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
   seekAudio: null,
   setSeekAudio: (fn) => set({ seekAudio: fn }),
+  spotifySeek: null,
+  setSpotifySeek: (fn) => set({ spotifySeek: fn }),
 
   isAuthenticated: !!localStorage.getItem('spotify_access_token'),
   accessToken: localStorage.getItem('spotify_access_token'),

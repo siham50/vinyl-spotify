@@ -177,31 +177,63 @@ export function useSpotifyPlayer() {
     const origSetVolume = store.getState().setVolume;
     const origSeekAudio = store.getState().seekAudio;
 
+    function isSpotify() {
+      const id = store.getState().currentSongId;
+      return id && id.length > 5;
+    }
+
     store.setState({
       pause: () => {
-        playerRef.current?.pause();
-        stopProgressInterval();
-        store.setState({ isPlaying: false });
+        if (isSpotify()) {
+          playerRef.current?.pause();
+          stopProgressInterval();
+          store.setState({ isPlaying: false });
+        } else {
+          origPause();
+        }
       },
       resume: () => {
-        playerRef.current?.resume();
-        startProgressInterval();
-        store.setState({ isPlaying: true });
+        if (isSpotify()) {
+          playerRef.current?.resume();
+          startProgressInterval();
+          store.setState({ isPlaying: true });
+        } else {
+          origResume();
+        }
       },
       nextSong: () => {
-        playerRef.current?.nextTrack();
+        if (isSpotify()) {
+          playerRef.current?.nextTrack();
+        } else {
+          origNext();
+        }
       },
       prevSong: () => {
-        playerRef.current?.previousTrack();
+        if (isSpotify()) {
+          playerRef.current?.previousTrack();
+        } else {
+          origPrev();
+        }
       },
       setVolume: (value: number) => {
-        playerRef.current?.setVolume(value);
-        store.setState({ volume: value });
+        if (isSpotify()) {
+          playerRef.current?.setVolume(value);
+        }
+        origSetVolume(value);
       },
       seekAudio: (seconds: number) => {
-        const dur = store.getState().duration || 1;
-        playerRef.current?.seek(seconds * 1000);
-        store.setState({ progress: Math.min(1, seconds / dur) });
+        if (isSpotify()) {
+          const dur = store.getState().duration || 1;
+          // Immediately update store to seeked position so UI reflects it right away
+          store.setState({ progress: Math.min(1, seconds / dur) });
+          // Tell the Spotify SDK to actually seek
+          playerRef.current?.seek(seconds * 1000);
+          // Restart progress interval from new position
+          stopProgressInterval();
+          if (store.getState().isPlaying) startProgressInterval();
+        } else if (origSeekAudio) {
+          origSeekAudio(seconds);
+        }
       },
     });
 
