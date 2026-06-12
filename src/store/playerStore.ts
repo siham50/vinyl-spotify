@@ -22,6 +22,9 @@ export function usePlayer() {
     setView: (v: View) => store.setViewMode(v),
     appTheme: store.appTheme,
     toggleAppTheme: () => store.setAppTheme(store.appTheme === 'dark' ? 'light' : 'dark'),
+    showShortcuts: store.showShortcuts,
+    setShowShortcuts: store.setShowShortcuts,
+    currentSongId: store.currentSongId,
 
     // ── iPod config ─────────────────────────────────────────────────────────
     ipod: {
@@ -73,7 +76,16 @@ export function usePlayer() {
     setProgress: (seconds: number) => {
       const dur = songs[safeIndex]?.duration ?? 1;
       store.setProgress(Math.min(1, Math.max(0, seconds / dur)));
+      if (store.seekAudio) {
+        store.seekAudio(seconds);
+      }
     },
     setVolume: store.setVolume,
+
+    // ── Auth ────────────────────────────────────────────────────────────────
+    isAuthenticated: store.isAuthenticated,
+    accessToken: store.accessToken,
+    setAccessToken: store.setAccessToken,
+    logout: store.logout,
   };
 }

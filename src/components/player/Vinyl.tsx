@@ -1,8 +1,9 @@
 import { motion, useAnimation } from "framer-motion";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { usePlayer } from "@/store/playerStore";
-import { songs, fmt } from "@/lib/songs";
+import { fmt } from "@/lib/songs";
+import { usePlayerStore } from "@/store/usePlayerStore";
 
 export const VINYL_COLORS: Record<
   string,
@@ -75,9 +76,26 @@ const HEART_PATH =
   "M256 460 C 80 360, -40 220, 60 110 C 130 30, 230 60, 256 140 C 282 60, 382 30, 452 110 C 552 220, 432 360, 256 460 Z";
 
 export default function Vinyl() {
-  const { vinyl, index, progress, playing, next, prev, toggle, setProgress, volume, setVolume } =
-    usePlayer();
-  const song = songs[index];
+  const { playing, toggle, next, prev, progress, setProgress, vinyl, index, volume, setVolume, appTheme, currentSongId } = usePlayer();
+  const storeSongs = usePlayerStore((s) => s.songs);
+  const song = currentSongId ? storeSongs.find((s) => s.id === currentSongId) : null;
+  const spinControls = useAnimation();
+  const isMounted = useRef(false);
+  const [hoverPct, setHoverPct] = useState<number | null>(null);
+
+  if (!song) return null;
+
+  useEffect(() => {
+    if (isMounted.current) {
+      spinControls.start({
+        rotate: [0, 360],
+        transition: { duration: 0.6, ease: "easeInOut" }
+      });
+    } else {
+      isMounted.current = true;
+    }
+  }, [index, spinControls]);
+
   const palette = VINYL_COLORS[vinyl.color] ?? VINYL_COLORS.black;
   const icon = ICON_COLORS[vinyl.color] ?? ICON_COLORS.black;
   const pct = (progress / song.duration) * 100;
@@ -87,10 +105,21 @@ export default function Vinyl() {
   const isFlat = vinyl.style === "flat"; // old flat icon style
   const is8bit = vinyl.style === "8bit"; // old chunky-groove style (renamed)
   const isRetro = vinyl.style === "retro";
+  const isHolo = vinyl.style === "holographic";
+
+  let uiColor = icon.tile;
+  let btnText = "#ffffff";
+  if (vinyl.color === 'black') {
+    uiColor = appTheme === 'dark' ? '#ffffff' : '#18181b';
+    btnText = appTheme === 'dark' ? '#000000' : '#ffffff';
+  } else if (vinyl.color === 'pearl') {
+    uiColor = appTheme === 'dark' ? '#e5e5e5' : '#18181b';
+    btnText = appTheme === 'dark' ? '#000000' : '#ffffff';
+  } else if (['sunflowerGold', 'honeydew', 'vanillaCustard', 'ocean', 'periwinkle'].includes(vinyl.color)) {
+    btnText = '#000000';
+  }
 
   const grooves = Array.from({ length: is8bit ? 8 : 28 }, (_, i) => 60 + i * 6.5);
-
-  // We will use CSS animations for a perfectly fluid, interruptible infinite spin.
 
   const PIXEL_HEART_MAP = [
     '00000000000000000000000000000000',
@@ -175,10 +204,9 @@ export default function Vinyl() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1, transition: { duration: 0.3 } }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
       className="flex flex-col items-center gap-6 w-full max-w-sm px-4"
     >
       {/* Vinyl + tonearm */}
@@ -230,8 +258,10 @@ export default function Vinyl() {
           </svg>
         </motion.div>
 
-        {/* FLAT ILLUSTRATED ICON style */}
-        {isFlat ? (
+        {/* Vinyl Disc Wrapper for Speedup Animation */}
+        <motion.div animate={spinControls} className="absolute inset-0">
+          {/* FLAT ILLUSTRATED ICON style */}
+          {isFlat ? (
           <div
             className="absolute inset-0 animate-spin"
             style={{ animationDuration: "4s", animationPlayState: playing ? "running" : "paused" }}
@@ -430,7 +460,7 @@ export default function Vinyl() {
               
               {/* Album Art (60px diameter) */}
               <image
-                href={song.art}
+                href={song.cover}
                 x="226"
                 y="186"
                 width="60"
@@ -458,6 +488,7 @@ export default function Vinyl() {
             </svg>
           </div>
         )}
+        </motion.div>
       </div>
 
       {/* Song info */}
@@ -469,20 +500,46 @@ export default function Vinyl() {
       </div>
 
       {/* Progress */}
-      <div className="w-full space-y-1.5">
+      <div className="w-full space-y-1.5 relative group">
+        {/* Tooltip */}
+        {hoverPct !== null && (
+          <div
+            className="absolute -top-7 text-[10px] px-1.5 py-0.5 rounded shadow-lg pointer-events-none transform -translate-x-1/2 z-10"
+            style={{ 
+              left: `${hoverPct * 100}%`,
+              background: 'var(--fg)',
+              color: 'var(--bg)'
+            }}
+          >
+            {fmt(hoverPct * song.duration)}
+          </div>
+        )}
         <div
-          className="h-1 w-full rounded-full overflow-hidden cursor-pointer"
+          className="h-1.5 w-full rounded-full cursor-pointer relative overflow-visible"
           style={{ background: 'var(--progress-track)' }}
+          onMouseMove={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            setHoverPct(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+          }}
+          onMouseLeave={() => setHoverPct(null)}
           onClick={(e) => {
             const r = e.currentTarget.getBoundingClientRect();
             setProgress(((e.clientX - r.left) / r.width) * song.duration);
           }}
         >
+          {/* Fill */}
           <motion.div
-            className="h-full rounded-full"
-            style={{ background: song.accent }}
+            className="h-full rounded-full absolute top-0 left-0"
+            style={{ background: uiColor }}
             animate={{ width: `${pct}%` }}
-            transition={{ ease: "linear", duration: 0.4 }}
+            transition={{ ease: "easeOut", duration: 0.25 }}
+          />
+          {/* Thumb */}
+          <motion.div
+            className="w-2.5 h-2.5 rounded-full absolute top-1/2 -translate-y-1/2 -ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+            style={{ background: uiColor }}
+            animate={{ left: `${pct}%` }}
+            transition={{ ease: "easeOut", duration: 0.25 }}
           />
         </div>
         <div className="flex justify-between text-xs tabular-nums" style={{ color: 'var(--fg-subtle)' }}>
@@ -504,8 +561,8 @@ export default function Vinyl() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={toggle}
-          className="w-14 h-14 rounded-full flex items-center justify-center text-black"
-          style={{ background: song.accent, boxShadow: `0 8px 30px ${song.accent}66` }}
+          className="w-14 h-14 rounded-full flex items-center justify-center"
+          style={{ background: uiColor, color: btnText, boxShadow: `0 8px 30px ${uiColor}66` }}
         >
           {playing ? (
             <Pause className="w-6 h-6" fill="currentColor" />
@@ -526,16 +583,39 @@ export default function Vinyl() {
       {/* Volume */}
       <div className="flex items-center gap-3 w-full">
         <Volume2 className="w-4 h-4" style={{ color: 'var(--fg-subtle)' }} />
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          onChange={(e) => setVolume(parseFloat(e.target.value))}
-          className="flex-1"
-          style={{ accentColor: song.accent }}
-        />
+        <div
+          className="h-1.5 w-full rounded-full cursor-pointer relative overflow-visible flex-1 group"
+          style={{ background: 'var(--progress-track)' }}
+          onClick={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            setVolume(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+          }}
+          onMouseMove={(e) => {
+            if (e.buttons === 1) {
+              const r = e.currentTarget.getBoundingClientRect();
+              setVolume(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+            }
+          }}
+        >
+          {/* Fill */}
+          <div
+            className="h-full rounded-full absolute top-0 left-0 pointer-events-none"
+            style={{ 
+              background: palette.label, 
+              width: `${volume * 100}%`,
+              filter: appTheme === 'light' ? 'brightness(0.65)' : 'none'
+            }}
+          />
+          {/* Thumb */}
+          <div
+            className="w-2.5 h-2.5 rounded-full absolute top-1/2 -translate-y-1/2 -ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm pointer-events-none"
+            style={{ 
+              background: palette.label, 
+              left: `${volume * 100}%`,
+              filter: appTheme === 'light' ? 'brightness(0.65)' : 'none'
+            }}
+          />
+        </div>
       </div>
     </motion.div>
   );

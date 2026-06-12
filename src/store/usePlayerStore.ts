@@ -24,6 +24,7 @@ interface PlayerState {
   vinylColor: string;
 
   appTheme: 'dark' | 'light';
+  showShortcuts: boolean;
 
   play: (songId: string) => void;
   pause: () => void;
@@ -34,6 +35,7 @@ interface PlayerState {
   setVolume: (value: number) => void;
   setViewMode: (mode: 'ipod' | 'vinyl') => void;
   setAppTheme: (theme: 'dark' | 'light') => void;
+  setShowShortcuts: (show: boolean) => void;
   setIpodColorTheme: (theme: string) => void;
   setIpodStyle: (style: PlayerState['ipodStyle']) => void;
   setIpodPixelColor: (color: string) => void;
@@ -41,6 +43,22 @@ interface PlayerState {
   setVinylShape: (shape: PlayerState['vinylShape']) => void;
   setVinylStyle: (style: PlayerState['vinylStyle']) => void;
   setVinylColor: (color: string) => void;
+
+  seekAudio: ((seconds: number) => void) | null;
+  setSeekAudio: (fn: (seconds: number) => void) => void;
+
+  isAuthenticated: boolean;
+  accessToken: string | null;
+  setAccessToken: (token: string) => void;
+  logout: () => void;
+
+  spotifyDeviceId: string | null;
+  setSpotifyDeviceId: (id: string) => void;
+
+  spotifyPlaylists: Array<{ id: string; name: string; images: Array<{ url: string }>; tracks: { total: number } }>;
+  setSpotifyPlaylists: (playlists: PlayerState['spotifyPlaylists']) => void;
+
+  setSongs: (songs: Song[]) => void;
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -54,6 +72,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
   viewMode: 'ipod',
   appTheme: 'dark',
+  showShortcuts: false,
 
   ipodColorTheme: 'silver',
   ipodStyle: 'standard',
@@ -89,6 +108,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setVolume: (value) => set({ volume: value }),
   setViewMode: (mode) => set({ viewMode: mode }),
   setAppTheme: (theme) => set({ appTheme: theme }),
+  setShowShortcuts: (show) => set({ showShortcuts: show }),
   setIpodColorTheme: (theme) => set({ ipodColorTheme: theme }),
   setIpodStyle: (style) => set({ ipodStyle: style }),
   setIpodPixelColor: (color) => set({ ipodPixelColor: color }),
@@ -96,4 +116,27 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setVinylShape: (shape) => set({ vinylShape: shape }),
   setVinylStyle: (style) => set({ vinylStyle: style }),
   setVinylColor: (color) => set({ vinylColor: color }),
+
+  seekAudio: null,
+  setSeekAudio: (fn) => set({ seekAudio: fn }),
+
+  isAuthenticated: !!localStorage.getItem('spotify_access_token'),
+  accessToken: localStorage.getItem('spotify_access_token'),
+  setAccessToken: (token) => {
+    localStorage.setItem('spotify_access_token', token);
+    set({ isAuthenticated: true, accessToken: token });
+  },
+  logout: () => {
+    localStorage.removeItem('spotify_access_token');
+    localStorage.removeItem('spotify_refresh_token');
+    set({ isAuthenticated: false, accessToken: null });
+  },
+
+  spotifyDeviceId: null,
+  setSpotifyDeviceId: (id) => set({ spotifyDeviceId: id }),
+
+  spotifyPlaylists: [],
+  setSpotifyPlaylists: (playlists) => set({ spotifyPlaylists: playlists }),
+
+  setSongs: (songs) => set({ songs }),
 }));
