@@ -10,6 +10,8 @@ export default function ShortcutsOverlay() {
     { keys: ['←'], desc: 'Previous Song' },
     { keys: ['T'], desc: 'Toggle View (iPod ↔ Vinyl)' },
     { keys: ['M'], desc: 'Cycle Player Mode' },
+    { keys: ['C'], desc: 'Toggle Toolkit (Colors & Themes)' },
+    { keys: ['D'], desc: 'Toggle Dark / Light Mode' },
     { keys: ['?'], desc: 'Show / Hide Shortcuts' },
   ];
 

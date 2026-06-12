@@ -25,6 +25,7 @@ interface PlayerState {
 
   appTheme: 'dark' | 'light';
   showShortcuts: boolean;
+  showToolkit: boolean;
 
   play: (songId: string) => void;
   pause: () => void;
@@ -36,6 +37,7 @@ interface PlayerState {
   setViewMode: (mode: 'ipod' | 'vinyl') => void;
   setAppTheme: (theme: 'dark' | 'light') => void;
   setShowShortcuts: (show: boolean) => void;
+  setShowToolkit: (show: boolean) => void;
   setIpodColorTheme: (theme: string) => void;
   setIpodStyle: (style: PlayerState['ipodStyle']) => void;
   setIpodPixelColor: (color: string) => void;
@@ -73,6 +75,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   viewMode: 'ipod',
   appTheme: 'dark',
   showShortcuts: false,
+  showToolkit: false,
 
   ipodColorTheme: 'silver',
   ipodStyle: 'standard',
@@ -109,6 +112,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setViewMode: (mode) => set({ viewMode: mode }),
   setAppTheme: (theme) => set({ appTheme: theme }),
   setShowShortcuts: (show) => set({ showShortcuts: show }),
+  setShowToolkit: (show) => set({ showToolkit: show }),
   setIpodColorTheme: (theme) => set({ ipodColorTheme: theme }),
   setIpodStyle: (style) => set({ ipodStyle: style }),
   setIpodPixelColor: (color) => set({ ipodPixelColor: color }),

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { usePlayer } from '@/store/playerStore';
 
 export function useKeyboardShortcuts() {
-  const { toggle, next, prev, view, setView, showShortcuts, setShowShortcuts, ipod, setIpod, vinyl, setVinyl } = usePlayer();
+  const { toggle, next, prev, view, setView, showShortcuts, setShowShortcuts, showToolkit, setShowToolkit, ipod, setIpod, vinyl, setVinyl, toggleAppTheme } = usePlayer();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -43,6 +43,14 @@ export function useKeyboardShortcuts() {
             setVinyl({ style: vinylModes[nextIndex] });
           }
           break;
+        case 'c':
+        case 'C':
+          setShowToolkit(!showToolkit);
+          break;
+        case 'd':
+        case 'D':
+          toggleAppTheme();
+          break;
         case '?':
           setShowShortcuts(!showShortcuts);
           break;
@@ -51,5 +59,5 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggle, next, prev, view, setView, showShortcuts, setShowShortcuts, ipod, setIpod, vinyl, setVinyl]);
+  }, [toggle, next, prev, view, setView, showShortcuts, setShowShortcuts, showToolkit, setShowToolkit, ipod, setIpod, vinyl, setVinyl, toggleAppTheme]);
 }

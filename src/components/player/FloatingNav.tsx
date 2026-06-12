@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Disc3, Music4, Sun, Moon, Palette } from "lucide-react";
 import { usePlayer, type View } from "@/store/playerStore";
@@ -25,8 +24,7 @@ function Swatch({ active, color, onClick, ring = "#fff" }: { active: boolean; co
 }
 
 export default function FloatingNav() {
-  const { view, setView, ipod, setIpod, vinyl, setVinyl, appTheme, toggleAppTheme } = usePlayer();
-  const [showToolkit, setShowToolkit] = useState(false);
+  const { view, setView, ipod, setIpod, vinyl, setVinyl, appTheme, toggleAppTheme, showToolkit, setShowToolkit } = usePlayer();
 
   return (
     <motion.div
