@@ -92,8 +92,10 @@ export function useAudio() {
     // Gracefully handle tracks with no audio source by doing nothing with Howler
     // A separate useEffect will handle mock playback for these
     if (!song.src) {
-      setDuration(song.duration ?? 0);
-      setCurrentTime(0);
+      if (!usePlayerStore.getState().isAuthenticated) {
+        setDuration(song.duration ?? 0);
+        setCurrentTime(0);
+      }
       return;
     }
 
@@ -196,14 +198,8 @@ export function useAudio() {
   // ── Mock playback for songs without audio ────────────────────────────
   useEffect(() => {
     const song = songs.find((s) => s.id === currentSongId);
-    // Only mock if there's no src
-    if (!song || song.src || !isPlaying) {
-      if (!song || song.src) {
-        // If it has src, we don't mock it. But make sure we don't leak interval.
-        // Wait, startProgressTick handles howl. We only stop our own interval if we had one.
-      }
-      return;
-    }
+    const isAuthenticated = usePlayerStore.getState().isAuthenticated;
+    if (!song || song.src || !isPlaying || isAuthenticated) return;
 
     const dur = song.duration || 1;
     const interval = setInterval(() => {

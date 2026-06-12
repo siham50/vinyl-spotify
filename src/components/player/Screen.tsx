@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { songs, fmt } from "@/lib/songs";
+import { fmt } from "@/lib/songs";
 import { usePlayer } from "@/store/playerStore";
+import { usePlayerStore } from "@/store/usePlayerStore";
 
 export function Equalizer({ color = "#fff", playing = true }: { color?: string; playing?: boolean }) {
   return (
@@ -84,9 +85,13 @@ function PixelEqualizer({ color, glow, playing }: { color: string; glow: string;
 type PixelTheme = { text: string; screen: string; glow: string };
 
 export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
-  const { index, progress, playing, setProgress } = usePlayer();
+  const { index, progress, playing, setProgress, currentSongId } = usePlayer();
   const [hoverPct, setHoverPct] = useState<number | null>(null);
-  const song = songs[index];
+  const storeSongs = usePlayerStore((s) => s.songs);
+  const song = currentSongId ? storeSongs.find((s) => s.id === currentSongId) : null;
+  
+  if (!song) return null;
+  
   const pct = (progress / song.duration) * 100;
 
   if (pixelTheme) {
@@ -109,7 +114,7 @@ export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
             overflow: "hidden",
           }}>
             <img
-              src={song.art}
+              src={song.cover}
               alt=""
               style={{ width: "100%", height: "100%", imageRendering: "pixelated", objectFit: "cover" }}
             />
@@ -169,7 +174,7 @@ export function NowPlayingScreen({ pixelTheme }: { pixelTheme?: PixelTheme }) {
   return (
     <div className="w-full h-full bg-gradient-to-b from-neutral-900 to-black text-white flex flex-col">
       <div className="relative w-full overflow-hidden shrink-0" style={{ height: 96 }}>
-        <img src={song.art} alt={song.album} className="w-full h-full object-cover" />
+        <img src={song.cover} alt={song.album} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
       </div>
       <div className="flex-1 px-2.5 py-1.5 flex flex-col justify-between min-h-0 gap-1 relative">

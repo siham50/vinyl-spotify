@@ -51,6 +51,14 @@ interface PlayerState {
   accessToken: string | null;
   setAccessToken: (token: string) => void;
   logout: () => void;
+
+  spotifyDeviceId: string | null;
+  setSpotifyDeviceId: (id: string) => void;
+
+  spotifyPlaylists: Array<{ id: string; name: string; images: Array<{ url: string }>; tracks: { total: number } }>;
+  setSpotifyPlaylists: (playlists: PlayerState['spotifyPlaylists']) => void;
+
+  setSongs: (songs: Song[]) => void;
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -123,4 +131,12 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     localStorage.removeItem('spotify_refresh_token');
     set({ isAuthenticated: false, accessToken: null });
   },
+
+  spotifyDeviceId: null,
+  setSpotifyDeviceId: (id) => set({ spotifyDeviceId: id }),
+
+  spotifyPlaylists: [],
+  setSpotifyPlaylists: (playlists) => set({ spotifyPlaylists: playlists }),
+
+  setSongs: (songs) => set({ songs }),
 }));

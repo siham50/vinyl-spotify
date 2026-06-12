@@ -8,6 +8,7 @@ import ShortcutsOverlay from './components/player/ShortcutsOverlay';
 import { usePlayer } from './store/playerStore';
 import { useAudio } from './hooks/useAudio';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useSpotifyPlayer } from './hooks/useSpotifyPlayer';
 import { songs } from './data/songs';
 import { Disc3, Music2 } from 'lucide-react';
 import { redirectToSpotifyAuth } from './lib/spotifyAuth';
@@ -78,9 +79,12 @@ export default function App() {
   useAudio();
   useKeyboardShortcuts();
 
-  const { appTheme, index, playing, currentSongId } = usePlayer();
+  const { appTheme, index, playing, currentSongId, isAuthenticated } = usePlayer();
   const song = currentSongId ? songs[index] : null;
   const location = useLocation();
+
+  // Only mount Spotify SDK when authenticated
+  const spotifyPlayer = isAuthenticated ? <SpotifyPlayerMount /> : null;
 
   // Feature #6: sync page title
   useEffect(() => {
@@ -97,6 +101,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full relative flex items-center justify-center overflow-hidden" style={{ background: 'var(--bg)', transition: 'background 0.4s ease' }}>
+      {spotifyPlayer}
       <Routes>
         <Route path="/" element={<PlayerUI />} />
         <Route path="/callback" element={<Callback />} />
@@ -111,4 +116,10 @@ export default function App() {
       )}
     </div>
   );
+}
+
+// Mounted as a child only when authenticated; initialises the Spotify SDK
+function SpotifyPlayerMount() {
+  useSpotifyPlayer();
+  return null;
 }

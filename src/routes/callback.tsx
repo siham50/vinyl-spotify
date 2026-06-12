@@ -1,54 +1,51 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { exchangeCodeForToken } from '../lib/spotifyAuth';
 import { usePlayer } from '../store/playerStore';
 
 export default function Callback() {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { setAccessToken } = usePlayer();
   const [error, setError] = useState<string | null>(null);
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
+    const searchParams = new URLSearchParams(window.location.search);
     const code = searchParams.get('code');
+    const errorParam = searchParams.get('error');
+
+    if (errorParam) {
+      setError(`Spotify error: ${errorParam}`);
+      return;
+    }
 
     if (!code) {
       setError('No authorization code found in URL.');
       return;
     }
 
-    let isMounted = true;
-
     async function processAuth() {
       try {
         const data = await exchangeCodeForToken(code as string);
-        if (!isMounted) return;
-
-        // The token exchange was successful
+        if (data.error) {
+          throw new Error(data.error_description || data.error);
+        }
         setAccessToken(data.access_token);
         if (data.refresh_token) {
           localStorage.setItem('spotify_refresh_token', data.refresh_token);
         }
-
-        // Clean up the session storage
-        sessionStorage.removeItem('spotify_verifier');
-
-        // Redirect back to home
-        navigate('/');
+        navigate('/', { replace: true });
       } catch (err: any) {
-        if (isMounted) {
-          setError(err.message || 'Failed to authenticate');
-          console.error('Auth error:', err);
-        }
+        setError(err.message || 'Failed to authenticate');
+        console.error('Auth error:', err);
       }
     }
 
     processAuth();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [searchParams, navigate, setAccessToken]);
+  }, [navigate, setAccessToken]);
 
   if (error) {
     return (

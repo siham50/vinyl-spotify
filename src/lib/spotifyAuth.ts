@@ -34,9 +34,9 @@ export async function redirectToSpotifyAuth() {
   const verifier = generateCodeVerifier(128);
   const challenge = await generateCodeChallenge(verifier);
 
-  sessionStorage.setItem('spotify_verifier', verifier);
+  localStorage.setItem('vp_pkce_verifier', verifier);
 
-  const scope = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-currently-playing';
+  const scope = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative';
   const authUrl = new URL('https://accounts.spotify.com/authorize');
 
   authUrl.searchParams.append('client_id', SPOTIFY_CLIENT_ID);
@@ -53,11 +53,12 @@ export async function redirectToSpotifyAuth() {
  * Exchanges the authorization code for an access token.
  */
 export async function exchangeCodeForToken(code: string) {
-  const verifier = sessionStorage.getItem('spotify_verifier');
+  const verifier = localStorage.getItem('vp_pkce_verifier');
 
   if (!verifier) {
-    throw new Error('Missing code verifier in sessionStorage');
+    throw new Error('Missing code verifier in localStorage');
   }
+  localStorage.removeItem('vp_pkce_verifier');
 
   const payload = new URLSearchParams({
     client_id: SPOTIFY_CLIENT_ID,
@@ -75,12 +76,13 @@ export async function exchangeCodeForToken(code: string) {
     body: payload,
   });
 
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(`Failed to exchange token: ${err.error_description || err.error}`);
+  const data = await response.json();
+
+  if (!response.ok || data.error) {
+    throw new Error(`Failed to exchange token: ${data.error_description || data.error}`);
   }
 
-  return response.json();
+  return data;
 }
 
 /**

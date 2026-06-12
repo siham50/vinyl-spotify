@@ -2,7 +2,8 @@ import { motion, useAnimation } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
 import { usePlayer } from "@/store/playerStore";
-import { songs, fmt } from "@/lib/songs";
+import { fmt } from "@/lib/songs";
+import { usePlayerStore } from "@/store/usePlayerStore";
 
 export const VINYL_COLORS: Record<
   string,
@@ -75,11 +76,14 @@ const HEART_PATH =
   "M256 460 C 80 360, -40 220, 60 110 C 130 30, 230 60, 256 140 C 282 60, 382 30, 452 110 C 552 220, 432 360, 256 460 Z";
 
 export default function Vinyl() {
-  const { playing, toggle, next, prev, progress, setProgress, vinyl, index, volume, setVolume, appTheme } = usePlayer();
-  const song = songs[index];
+  const { playing, toggle, next, prev, progress, setProgress, vinyl, index, volume, setVolume, appTheme, currentSongId } = usePlayer();
+  const storeSongs = usePlayerStore((s) => s.songs);
+  const song = currentSongId ? storeSongs.find((s) => s.id === currentSongId) : null;
   const spinControls = useAnimation();
   const isMounted = useRef(false);
   const [hoverPct, setHoverPct] = useState<number | null>(null);
+
+  if (!song) return null;
 
   useEffect(() => {
     if (isMounted.current) {
@@ -456,7 +460,7 @@ export default function Vinyl() {
               
               {/* Album Art (60px diameter) */}
               <image
-                href={song.art}
+                href={song.cover}
                 x="226"
                 y="186"
                 width="60"
