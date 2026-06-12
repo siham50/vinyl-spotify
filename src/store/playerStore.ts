@@ -81,5 +81,11 @@ export function usePlayer() {
       }
     },
     setVolume: store.setVolume,
+
+    // ── Auth ────────────────────────────────────────────────────────────────
+    isAuthenticated: store.isAuthenticated,
+    accessToken: store.accessToken,
+    setAccessToken: store.setAccessToken,
+    logout: store.logout,
   };
 }
