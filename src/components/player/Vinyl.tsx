@@ -579,16 +579,39 @@ export default function Vinyl() {
       {/* Volume */}
       <div className="flex items-center gap-3 w-full">
         <Volume2 className="w-4 h-4" style={{ color: 'var(--fg-subtle)' }} />
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          onChange={(e) => setVolume(parseFloat(e.target.value))}
-          className="flex-1"
-          style={{ accentColor: uiColor }}
-        />
+        <div
+          className="h-1.5 w-full rounded-full cursor-pointer relative overflow-visible flex-1 group"
+          style={{ background: 'var(--progress-track)' }}
+          onClick={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            setVolume(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+          }}
+          onMouseMove={(e) => {
+            if (e.buttons === 1) {
+              const r = e.currentTarget.getBoundingClientRect();
+              setVolume(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+            }
+          }}
+        >
+          {/* Fill */}
+          <div
+            className="h-full rounded-full absolute top-0 left-0 pointer-events-none"
+            style={{ 
+              background: palette.label, 
+              width: `${volume * 100}%`,
+              filter: appTheme === 'light' ? 'brightness(0.65)' : 'none'
+            }}
+          />
+          {/* Thumb */}
+          <div
+            className="w-2.5 h-2.5 rounded-full absolute top-1/2 -translate-y-1/2 -ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm pointer-events-none"
+            style={{ 
+              background: palette.label, 
+              left: `${volume * 100}%`,
+              filter: appTheme === 'light' ? 'brightness(0.65)' : 'none'
+            }}
+          />
+        </div>
       </div>
     </motion.div>
   );
