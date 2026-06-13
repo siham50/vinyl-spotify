@@ -26,6 +26,8 @@ export function usePlayer() {
     setShowShortcuts: store.setShowShortcuts,
     showToolkit: store.showToolkit,
     setShowToolkit: store.setShowToolkit,
+    showVolume: store.showVolume,
+    setShowVolumePanel: store.setShowVolume,
     currentSongId: store.currentSongId,
 
     // ── iPod config ─────────────────────────────────────────────────────────

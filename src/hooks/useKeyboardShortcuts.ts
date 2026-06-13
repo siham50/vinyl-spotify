@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { usePlayer } from '@/store/playerStore';
 
 export function useKeyboardShortcuts() {
-  const { toggle, next, prev, view, setView, showShortcuts, setShowShortcuts, showToolkit, setShowToolkit, ipod, setIpod, vinyl, setVinyl, toggleAppTheme, volume, setVolume } = usePlayer();
+  const { toggle, next, prev, view, setView, showShortcuts, setShowShortcuts, showToolkit, setShowToolkit, showVolume, setShowVolumePanel, ipod, setIpod, vinyl, setVinyl, toggleAppTheme, volume, setVolume } = usePlayer();
 
   const VOLUME_STEP = 0.05;
 
@@ -57,6 +57,10 @@ export function useKeyboardShortcuts() {
         case 'C':
           setShowToolkit(!showToolkit);
           break;
+        case 'v':
+        case 'V':
+          setShowVolumePanel(!showVolume);
+          break;
         case 'd':
         case 'D':
           toggleAppTheme();
@@ -69,5 +73,5 @@ export function useKeyboardShortcuts() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggle, next, prev, view, setView, showShortcuts, setShowShortcuts, showToolkit, setShowToolkit, ipod, setIpod, vinyl, setVinyl, toggleAppTheme, volume, setVolume]);
+  }, [toggle, next, prev, view, setView, showShortcuts, setShowShortcuts, showToolkit, setShowToolkit, showVolume, setShowVolumePanel, ipod, setIpod, vinyl, setVinyl, toggleAppTheme, volume, setVolume]);
 }

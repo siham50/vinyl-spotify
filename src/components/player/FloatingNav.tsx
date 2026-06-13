@@ -25,8 +25,7 @@ function Swatch({ active, color, onClick, ring = "#fff" }: { active: boolean; co
 }
 
 export default function FloatingNav() {
-  const { view, setView, ipod, setIpod, vinyl, setVinyl, appTheme, toggleAppTheme, showToolkit, setShowToolkit, volume, setVolume } = usePlayer();
-  const [showVolume, setShowVolume] = useState(false);
+  const { view, setView, ipod, setIpod, vinyl, setVinyl, appTheme, toggleAppTheme, showToolkit, setShowToolkit, showVolume, setShowVolumePanel, volume, setVolume } = usePlayer();
   const [visible, setVisible] = useState(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();
 
@@ -38,7 +37,7 @@ export default function FloatingNav() {
   const hideNav = () => {
     hideTimer.current = setTimeout(() => {
       setVisible(false);
-      setShowVolume(false);
+      setShowVolumePanel(false);
       setShowToolkit(false);
     }, 400);
   };
@@ -98,7 +97,7 @@ export default function FloatingNav() {
 
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={() => setShowVolume(!showVolume)}
+          onClick={() => setShowVolumePanel(!showVolume)}
           className="relative w-9 h-9 rounded-full flex items-center justify-center transition shrink-0"
           style={{ color: showVolume ? "var(--active-icon)" : "var(--nav-fg)" }}
           title={`Volume ${Math.round(volume * 100)}% (↑ / ↓)`}
