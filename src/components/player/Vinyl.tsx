@@ -499,6 +499,38 @@ export default function Vinyl() {
         </p>
       </div>
 
+      {/* Controls */}
+      <div className="flex items-center gap-6">
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={prev}
+          className="transition"
+          style={{ color: 'var(--controls-fg)' }}
+        >
+          <SkipBack className="w-6 h-6" fill="currentColor" />
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={toggle}
+          className="w-14 h-14 rounded-full flex items-center justify-center"
+          style={{ background: uiColor, color: btnText, boxShadow: `0 8px 30px ${uiColor}66` }}
+        >
+          {playing ? (
+            <Pause className="w-6 h-6" fill="currentColor" />
+          ) : (
+            <Play className="w-6 h-6 ml-0.5" fill="currentColor" />
+          )}
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={next}
+          className="transition"
+          style={{ color: 'var(--controls-fg)' }}
+        >
+          <SkipForward className="w-6 h-6" fill="currentColor" />
+        </motion.button>
+      </div>
+
       {/* Progress */}
       <div className="w-full space-y-1.5 relative group">
         {/* Tooltip */}
@@ -546,38 +578,6 @@ export default function Vinyl() {
           <span>{fmt(progress)}</span>
           <span>{fmt(song.duration)}</span>
         </div>
-      </div>
-
-      {/* Controls */}
-      <div className="flex items-center gap-6">
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={prev}
-          className="transition"
-          style={{ color: 'var(--controls-fg)' }}
-        >
-          <SkipBack className="w-6 h-6" fill="currentColor" />
-        </motion.button>
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={toggle}
-          className="w-14 h-14 rounded-full flex items-center justify-center"
-          style={{ background: uiColor, color: btnText, boxShadow: `0 8px 30px ${uiColor}66` }}
-        >
-          {playing ? (
-            <Pause className="w-6 h-6" fill="currentColor" />
-          ) : (
-            <Play className="w-6 h-6 ml-0.5" fill="currentColor" />
-          )}
-        </motion.button>
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={next}
-          className="transition"
-          style={{ color: 'var(--controls-fg)' }}
-        >
-          <SkipForward className="w-6 h-6" fill="currentColor" />
-        </motion.button>
       </div>
     </motion.div>
   );
