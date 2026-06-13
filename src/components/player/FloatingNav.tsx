@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Disc3, Music4, Sun, Moon, Palette, Volume2 } from "lucide-react";
 import { usePlayer, type View } from "@/store/playerStore";
 import { IPOD_COLORS, PIXEL_COLORS } from "./IPod";
@@ -27,15 +27,46 @@ function Swatch({ active, color, onClick, ring = "#fff" }: { active: boolean; co
 export default function FloatingNav() {
   const { view, setView, ipod, setIpod, vinyl, setVinyl, appTheme, toggleAppTheme, showToolkit, setShowToolkit, volume, setVolume } = usePlayer();
   const [showVolume, setShowVolume] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const hideTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const showNav = () => {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    setVisible(true);
+  };
+
+  const hideNav = () => {
+    hideTimer.current = setTimeout(() => {
+      setVisible(false);
+      setShowVolume(false);
+      setShowToolkit(false);
+    }, 400);
+  };
+
+  useEffect(() => {
+    if (showToolkit || showVolume) setVisible(true);
+  }, [showToolkit, showVolume]);
+
+  useEffect(() => () => {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+  }, []);
 
   return (
-    <motion.div
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 frosted rounded-full px-3 py-2 flex items-center gap-3 shadow-2xl max-w-[95vw] overflow-x-auto"
-      style={{ scrollbarWidth: 'none' }}
+    <div
+      className="fixed bottom-0 left-0 right-0 z-50 flex flex-col items-center"
+      onMouseEnter={showNav}
+      onMouseLeave={hideNav}
     >
+      <motion.div
+        initial={false}
+        animate={{
+          y: visible ? 0 : 72,
+          opacity: visible ? 1 : 0,
+        }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        className="mb-4 frosted rounded-full px-3 py-2 flex items-center gap-3 shadow-2xl max-w-[95vw] overflow-x-auto"
+        style={{ scrollbarWidth: "none", pointerEvents: visible ? "auto" : "none" }}
+      >
       <div className="flex items-center gap-1 shrink-0">
         {views.map(v => {
           const Icon = v.icon;
@@ -198,6 +229,10 @@ export default function FloatingNav() {
           {appTheme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </motion.div>
       </motion.button>
-    </motion.div>
+      </motion.div>
+
+      {/* Bottom-edge trigger zone (like auto-hide taskbar) */}
+      <div className="w-full h-3 shrink-0" />
+    </div>
   );
 }
