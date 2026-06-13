@@ -213,7 +213,7 @@ export default function IPod() {
 
       {/* VinyPod Logo */}
       <div
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 font-display font-bold text-[10px] tracking-widest opacity-80"
+        className="absolute bottom-2 left-1/2 -translate-x-1/2 font-display font-bold text-[7px] tracking-widest opacity-80"
         style={{ color: std!.logo, transition: "all 400ms ease" }}
       >
         VinyPod
