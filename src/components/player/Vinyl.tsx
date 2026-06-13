@@ -1,6 +1,6 @@
 import { motion, useAnimation } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Play, Pause, SkipBack, SkipForward, Volume2 } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward } from "lucide-react";
 import { usePlayer } from "@/store/playerStore";
 import { fmt } from "@/lib/songs";
 import { usePlayerStore } from "@/store/usePlayerStore";
@@ -76,7 +76,7 @@ const HEART_PATH =
   "M256 460 C 80 360, -40 220, 60 110 C 130 30, 230 60, 256 140 C 282 60, 382 30, 452 110 C 552 220, 432 360, 256 460 Z";
 
 export default function Vinyl() {
-  const { playing, toggle, next, prev, progress, setProgress, vinyl, index, volume, setVolume, appTheme, currentSongId } = usePlayer();
+  const { playing, toggle, next, prev, progress, setProgress, vinyl, index, appTheme, currentSongId } = usePlayer();
   const storeSongs = usePlayerStore((s) => s.songs);
   const song = currentSongId ? storeSongs.find((s) => s.id === currentSongId) : null;
   const spinControls = useAnimation();
@@ -578,44 +578,6 @@ export default function Vinyl() {
         >
           <SkipForward className="w-6 h-6" fill="currentColor" />
         </motion.button>
-      </div>
-
-      {/* Volume */}
-      <div className="flex items-center gap-3 w-full">
-        <Volume2 className="w-4 h-4" style={{ color: 'var(--fg-subtle)' }} />
-        <div
-          className="h-1.5 w-full rounded-full cursor-pointer relative overflow-visible flex-1 group"
-          style={{ background: 'var(--progress-track)' }}
-          onClick={(e) => {
-            const r = e.currentTarget.getBoundingClientRect();
-            setVolume(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
-          }}
-          onMouseMove={(e) => {
-            if (e.buttons === 1) {
-              const r = e.currentTarget.getBoundingClientRect();
-              setVolume(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
-            }
-          }}
-        >
-          {/* Fill */}
-          <div
-            className="h-full rounded-full absolute top-0 left-0 pointer-events-none"
-            style={{ 
-              background: palette.label, 
-              width: `${volume * 100}%`,
-              filter: appTheme === 'light' ? 'brightness(0.65)' : 'none'
-            }}
-          />
-          {/* Thumb */}
-          <div
-            className="w-2.5 h-2.5 rounded-full absolute top-1/2 -translate-y-1/2 -ml-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm pointer-events-none"
-            style={{ 
-              background: palette.label, 
-              left: `${volume * 100}%`,
-              filter: appTheme === 'light' ? 'brightness(0.65)' : 'none'
-            }}
-          />
-        </div>
       </div>
     </motion.div>
   );

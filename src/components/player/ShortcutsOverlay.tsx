@@ -8,6 +8,8 @@ export default function ShortcutsOverlay() {
     { keys: ['Space'], desc: 'Play / Pause' },
     { keys: ['→'], desc: 'Next Song' },
     { keys: ['←'], desc: 'Previous Song' },
+    { keys: ['↑'], desc: 'Volume Up' },
+    { keys: ['↓'], desc: 'Volume Down' },
     { keys: ['T'], desc: 'Toggle View (iPod ↔ Vinyl)' },
     { keys: ['M'], desc: 'Cycle Player Mode' },
     { keys: ['C'], desc: 'Toggle Toolkit (Colors & Themes)' },

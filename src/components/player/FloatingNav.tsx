@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Disc3, Music4, Sun, Moon, Palette } from "lucide-react";
+import { useState } from "react";
+import { Disc3, Music4, Sun, Moon, Palette, Volume2 } from "lucide-react";
 import { usePlayer, type View } from "@/store/playerStore";
 import { IPOD_COLORS, PIXEL_COLORS } from "./IPod";
 import { VINYL_COLORS } from "./Vinyl";
@@ -24,7 +25,8 @@ function Swatch({ active, color, onClick, ring = "#fff" }: { active: boolean; co
 }
 
 export default function FloatingNav() {
-  const { view, setView, ipod, setIpod, vinyl, setVinyl, appTheme, toggleAppTheme, showToolkit, setShowToolkit } = usePlayer();
+  const { view, setView, ipod, setIpod, vinyl, setVinyl, appTheme, toggleAppTheme, showToolkit, setShowToolkit, volume, setVolume } = usePlayer();
+  const [showVolume, setShowVolume] = useState(false);
 
   return (
     <motion.div
@@ -62,6 +64,58 @@ export default function FloatingNav() {
           {showToolkit && <motion.div layoutId="toolkit-pill" className="absolute inset-0 rounded-full" style={{ background: "var(--active-pill)" }}/>}
           <Palette className="w-4 h-4 relative z-10" />
         </motion.button>
+
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setShowVolume(!showVolume)}
+          className="relative w-9 h-9 rounded-full flex items-center justify-center transition shrink-0"
+          style={{ color: showVolume ? "var(--active-icon)" : "var(--nav-fg)" }}
+          title={`Volume ${Math.round(volume * 100)}% (↑ / ↓)`}
+        >
+          {showVolume && <motion.div layoutId="volume-pill" className="absolute inset-0 rounded-full" style={{ background: "var(--active-pill)" }}/>}
+          <Volume2 className="w-4 h-4 relative z-10" />
+        </motion.button>
+
+        <AnimatePresence>
+          {showVolume && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "auto", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              className="flex items-center overflow-hidden"
+            >
+              <div className="w-px h-6 bg-white/10 shrink-0 mx-2"/>
+              <div className="flex items-center gap-2 shrink-0">
+                <div
+                  className="h-1.5 w-20 rounded-full cursor-pointer relative overflow-visible group"
+                  style={{ background: "var(--progress-track)" }}
+                  onClick={(e) => {
+                    const r = e.currentTarget.getBoundingClientRect();
+                    setVolume(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+                  }}
+                  onMouseMove={(e) => {
+                    if (e.buttons === 1) {
+                      const r = e.currentTarget.getBoundingClientRect();
+                      setVolume(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+                    }
+                  }}
+                >
+                  <div
+                    className="h-full rounded-full absolute top-0 left-0 pointer-events-none"
+                    style={{ background: "var(--nav-fg)", width: `${volume * 100}%` }}
+                  />
+                  <div
+                    className="w-2 h-2 rounded-full absolute top-1/2 -translate-y-1/2 -ml-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm pointer-events-none"
+                    style={{ background: "var(--nav-fg)", left: `${volume * 100}%` }}
+                  />
+                </div>
+                <span className="text-[9px] font-bold tabular-nums w-7 text-right" style={{ color: "var(--nav-muted)" }}>
+                  {Math.round(volume * 100)}
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {showToolkit && (
