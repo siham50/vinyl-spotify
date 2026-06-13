@@ -75,6 +75,40 @@ const ICON_COLORS: Record<
 const HEART_PATH =
   "M256 460 C 80 360, -40 220, 60 110 C 130 30, 230 60, 256 140 C 282 60, 382 30, 452 110 C 552 220, 432 360, 256 460 Z";
 
+const LABEL_RADIUS = 80;
+
+function truncateLabelText(text: string, maxLength: number): string {
+  return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
+}
+
+function splitLabelTitle(title: string, maxLineLength = 15, maxLines = 2): string[] {
+  if (title.length <= maxLineLength) return [title];
+
+  const words = title.split(/\s+/);
+  const lines: string[] = [];
+  let current = "";
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= maxLineLength) {
+      current = next;
+      continue;
+    }
+
+    if (current) lines.push(current);
+    if (lines.length >= maxLines - 1) {
+      lines.push(truncateLabelText(words.slice(i).join(" "), maxLineLength));
+      return lines.slice(0, maxLines);
+    }
+
+    current = word.length > maxLineLength ? truncateLabelText(word, maxLineLength) : word;
+  }
+
+  if (current) lines.push(truncateLabelText(current, maxLineLength));
+  return lines.slice(0, maxLines);
+}
+
 export default function Vinyl() {
   const { playing, toggle, next, prev, progress, setProgress, vinyl, index, appTheme, currentSongId } = usePlayer();
   const storeSongs = usePlayerStore((s) => s.songs);
@@ -99,6 +133,11 @@ export default function Vinyl() {
   const palette = VINYL_COLORS[vinyl.color] ?? VINYL_COLORS.black;
   const icon = ICON_COLORS[vinyl.color] ?? ICON_COLORS.black;
   const pct = (progress / song.duration) * 100;
+  const titleLines = splitLabelTitle(song.title);
+  const artistLine = truncateLabelText(song.artist, 20);
+  const titleStartY = titleLines.length > 1 ? 270 : 278;
+  const artistY = titleLines.length > 1 ? 296 : 292;
+  const logoY = titleLines.length > 1 ? 314 : 320;
 
   const isHeart = vinyl.shape === "heart";
   const isPixel = vinyl.style === "pixel"; // new pixel art style
@@ -367,6 +406,9 @@ export default function Vinyl() {
                   <stop offset="65%" stopColor="rgba(255,255,255,0)" />
                   <stop offset="100%" stopColor="rgba(0,0,0,0.35)" />
                 </linearGradient>
+                <clipPath id="label-clip">
+                  <circle cx="256" cy="256" r={LABEL_RADIUS} />
+                </clipPath>
               </defs>
 
               <g clipPath="url(#shape-clip)">
@@ -473,18 +515,24 @@ export default function Vinyl() {
               {/* Center hole */}
               <circle cx="256" cy="256" r="4" fill="#0a0a0a" />
 
-              {/* Song Info */}
-              <text x="256" y="278" textAnchor="middle" fill={palette.base} fontSize="11" fontWeight="bold" fontFamily="var(--font-sans)">
-                {song.title}
-              </text>
-              <text x="256" y="292" textAnchor="middle" fill={palette.base} fontSize="8" fontFamily="var(--font-sans)" opacity="0.8">
-                {song.artist}
-              </text>
+              {/* Song Info — clipped to label circle */}
+              <g clipPath="url(#label-clip)">
+                <text x="256" y={titleStartY} textAnchor="middle" fill={palette.base} fontSize="11" fontWeight="bold" fontFamily="var(--font-sans)">
+                  {titleLines.map((line, i) => (
+                    <tspan key={i} x="256" dy={i === 0 ? 0 : 12}>
+                      {line}
+                    </tspan>
+                  ))}
+                </text>
+                <text x="256" y={artistY} textAnchor="middle" fill={palette.base} fontSize="8" fontFamily="var(--font-sans)" opacity="0.8">
+                  {artistLine}
+                </text>
 
-              {/* VinyPod Logo */}
-              <text x="256" y="320" textAnchor="middle" fill={palette.base} fontSize="6" fontWeight="900" fontFamily="var(--font-display)" letterSpacing="1.5" opacity="0.6">
-                VINYPOD
-              </text>
+                {/* VinyPod Logo */}
+                <text x="256" y={logoY} textAnchor="middle" fill={palette.base} fontSize="6" fontWeight="900" fontFamily="var(--font-display)" letterSpacing="1.5" opacity="0.6">
+                  VINYPOD
+                </text>
+              </g>
             </svg>
           </div>
         )}
